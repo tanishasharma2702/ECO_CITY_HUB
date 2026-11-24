@@ -1,0 +1,39 @@
+{
+  "brand": {
+    "name": "EcoCity Hub",
+    "tagline": "Eine Plattform. Drei Probleme. Eine Grünere Stadt.",
+    "footerQuote": "Stärkung der Bürgerbeteiligung für sauberere und sicherere Straßen.",
+    "creator": "Tanisha Sharma | JECRC University"
+  },
+  "nav": {
+    "home": "Startseite",
+    "about": "Über uns",
+    "exploreFeatures": "Funktionen",
+    "howItWorks": "Wie es funktioniert",
+    "contact": "Kontakt",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "dashboard": "Dashboard",
+    "carbonCalculator": "CO2-Fußabdruck-Rechner",
+    "civicReporter": "Bürgerbeschwerde-Reporter",
+    "plantChecker": "Pflanzengesundheits-Check",
+    "greenChallenges": "Grüne Herausforderungen",
+    "myReports": "Meine Meldungen",
+    "greenScore": "Green Score & Abzeichen",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "hero": {
+    "badge": "KI-gestützte Smart-City- und Umweltplattform",
+    "title": "Gemeinsam für eine grünere Stadt.",
+    "desc": "Verfolgen Sie Ihre Umweltauswirkungen, melden Sie lokale Bürgerprobleme und pflegen Sie Pflanzen mit KI-Tools.",
+    "btnExplore": "Funktionen erkunden",
+    "btnGetStarted": "Jetzt starten"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "loading": "Wird geladen..."
+  }
+}

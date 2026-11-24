@@ -1,0 +1,39 @@
+{
+  "brand": {
+    "name": "EcoCity Hub",
+    "tagline": "Una Plataforma. Tres Problemas. Una Ciudad Más Verde.",
+    "footerQuote": "Empoderando la vigilancia comunitaria para calles más limpias y seguras.",
+    "creator": "Tanisha Sharma | JECRC University"
+  },
+  "nav": {
+    "home": "Inicio",
+    "about": "Nosotros",
+    "exploreFeatures": "Explorar Funciones",
+    "howItWorks": "Cómo Funciona",
+    "contact": "Contacto",
+    "login": "Iniciar Sesión",
+    "signup": "Registrarse",
+    "dashboard": "Panel de Control",
+    "carbonCalculator": "Calculadora de Huella de Carbono",
+    "civicReporter": "Reporte Cívico Comunitario",
+    "plantChecker": "Verificador de Salud Vegetal",
+    "greenChallenges": "Desafíos Verdes",
+    "myReports": "Mis Reportes",
+    "greenScore": "Puntuación Verde e Insignias",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión"
+  },
+  "hero": {
+    "badge": "Plataforma Ambiental y de Ciudad Inteligente con IA",
+    "title": "Juntos, Construyamos una Ciudad Más Verde.",
+    "desc": "Mide tu impacto ambiental, reporta problemas cívicos locales y cuida mejor tus plantas con herramientas de IA.",
+    "btnExplore": "Explorar Funciones",
+    "btnGetStarted": "Comenzar Ahora"
+  },
+  "common": {
+    "save": "Guardar Cambios",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "loading": "Cargando..."
+  }
+}
