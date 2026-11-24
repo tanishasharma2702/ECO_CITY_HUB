@@ -93,13 +93,13 @@ export default function Settings() {
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-eco-200 text-eco-950 border border-eco-300 mb-2">
           <SettingsIcon className="w-3.5 h-3.5" />
-          <span>System & Preferences</span>
+          <span>{t('settings.badge', 'System & Preferences')}</span>
         </div>
         <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-eco-950 dark:text-dark-text tracking-tight">
           {t('settings.title', 'Settings & Preferences')}
         </h1>
         <p className="text-sm text-stone-600 dark:text-dark-muted mt-1">
-          Customize your profile, display theme, font scale, language, and connected API credentials.
+          {t('settings.subtitle', 'Customize your profile, display theme, font scale, language, and connected API credentials.')}
         </p>
       </div>
 
@@ -112,10 +112,10 @@ export default function Settings() {
             </div>
             <div>
               <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-                {t('settings.profile', 'Profile Information')}
+                {t('settings.profileHeading', 'Profile Information')}
               </h3>
               <p className="text-xs text-stone-500">
-                Manage your citizen identity and residential civic jurisdiction.
+                {t('settings.profileSub', 'Manage your citizen identity and residential civic jurisdiction.')}
               </p>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function Settings() {
           {profileSuccess && (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Saved!</span>
+              <span>{t('settings.profileSaved', 'Profile saved successfully!')}</span>
             </span>
           )}
         </div>
@@ -140,7 +140,7 @@ export default function Settings() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
-                Full Name
+                {t('settings.fullName', 'Full Name')}
               </label>
               <input
                 type="text"
@@ -153,7 +153,7 @@ export default function Settings() {
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
-                Registered Email (Auth Locked)
+                {t('settings.registeredEmail', 'Registered Email (Auth Locked)')}
               </label>
               <input
                 type="email"
@@ -181,12 +181,12 @@ export default function Settings() {
             disabled={savingProfile}
             className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-eco-900 hover:bg-eco-950 transition-colors shadow-sm disabled:opacity-50"
           >
-            {savingProfile ? 'Saving Changes...' : t('common.save', 'Save Changes')}
+            {savingProfile ? t('settings.saving', 'Saving...') : t('settings.saveProfileBtn', 'Save Profile Changes')}
           </button>
         </form>
       </div>
 
-      {/* 2. Theme Preferences (Inside Settings, not in navbar!) */}
+      {/* 2. Theme Preferences */}
       <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3 border-b border-eco-100 dark:border-dark-border pb-4">
           <div className="w-10 h-10 rounded-xl bg-eco-200 dark:bg-stone-800 text-eco-900 dark:text-eco-200 flex items-center justify-center">
@@ -194,19 +194,19 @@ export default function Settings() {
           </div>
           <div>
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              {t('settings.theme', 'Theme Preferences')}
+              {t('settings.themeHeading', 'Theme Mode')}
             </h3>
             <p className="text-xs text-stone-500">
-              Select between Light, Dark, or System Default. Saved automatically across sessions.
+              {t('settings.themeSub', 'Select between Light, Dark, or System Default. Saved automatically across sessions.')}
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { id: 'light', label: t('settings.themeLight', 'Light Mode (Default)'), icon: Sun, desc: 'Warm peach & beige earthy surfaces' },
-            { id: 'dark', label: t('settings.themeDark', 'Dark Mode'), icon: Moon, desc: 'Dark espresso brown & stone contrast' },
-            { id: 'system', label: t('settings.themeSystem', 'System Default'), icon: Laptop, desc: 'Adapts to your operating system' }
+            { id: 'light', label: t('settings.themeLight', 'Light Mode (Default)'), icon: Sun, desc: t('settings.themeLightDesc', 'Warm peach & beige earthy surfaces') },
+            { id: 'dark', label: t('settings.themeDark', 'Dark Mode'), icon: Moon, desc: t('settings.themeDarkDesc', 'Dark espresso brown & stone contrast') },
+            { id: 'system', label: t('settings.themeSystem', 'System Default'), icon: Laptop, desc: t('settings.themeSystemDesc', 'Adapts to your operating system') }
           ].map((mode) => {
             const IconComp = mode.icon;
             const isSelected = theme === mode.id;
@@ -245,10 +245,10 @@ export default function Settings() {
           </div>
           <div>
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              {t('settings.fontSize', 'Display Font Size')}
+              {t('settings.fontHeading', 'Display Font Size')}
             </h3>
             <p className="text-xs text-stone-500">
-              Adjust typography scale for optimal accessibility and readability.
+              {t('settings.fontSub', 'Adjust typography scale for optimal accessibility and readability.')}
             </p>
           </div>
         </div>
@@ -285,10 +285,10 @@ export default function Settings() {
             </div>
             <div>
               <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-                {t('settings.language', 'Language Preferences')}
+                {t('settings.langHeading', 'Language Preferences')}
               </h3>
               <p className="text-xs text-stone-500">
-                Choose your preferred interface and AI reporting language.
+                {t('settings.langSub', 'Choose your preferred interface and AI reporting language.')}
               </p>
             </div>
           </div>
@@ -305,10 +305,10 @@ export default function Settings() {
           </div>
           <div>
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              {t('settings.security', 'Security & Connected Services')}
+              {t('settings.securityHeading', 'Security & Connected Services')}
             </h3>
             <p className="text-xs text-stone-500">
-              Live status of backend database, Edge Functions, and AI vision services.
+              {t('settings.securitySub', 'Status of your Supabase database and Gemini AI configurations.')}
             </p>
           </div>
         </div>
@@ -319,18 +319,20 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Database className="w-4 h-4 text-eco-800 dark:text-eco-300" />
-                <span className="font-bold text-xs text-eco-950 dark:text-dark-text">Supabase Backend</span>
+                <span className="font-bold text-xs text-eco-950 dark:text-dark-text">
+                  {t('settings.supabaseTitle', 'Supabase Backend')}
+                </span>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                 isSupabaseLive ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
               }`}>
-                {isSupabaseLive ? 'Configured' : 'Local Demo Mode'}
+                {isSupabaseLive ? t('settings.statusConfigured', 'Configured') : t('settings.statusDemo', 'Local Demo Mode')}
               </span>
             </div>
             <p className="text-xs text-stone-600 dark:text-dark-muted">
               {isSupabaseLive
-                ? 'Connected to your remote Supabase PostgreSQL database.'
-                : 'Using browser local state mock fallback. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to connect.'}
+                ? t('settings.supabaseLive', 'Connected to your remote Supabase PostgreSQL database.')
+                : t('settings.supabaseMock', 'Using browser local state mock fallback.')}
             </p>
           </div>
 
@@ -339,18 +341,20 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Cpu className="w-4 h-4 text-eco-800 dark:text-eco-300" />
-                <span className="font-bold text-xs text-eco-950 dark:text-dark-text">Gemini Vision AI</span>
+                <span className="font-bold text-xs text-eco-950 dark:text-dark-text">
+                  {t('settings.geminiTitle', 'Gemini Vision AI')}
+                </span>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                 isGeminiLive ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-100 text-emerald-800'
               }`}>
-                {isGeminiLive ? 'Direct API Key Active' : 'Edge Function & Smart Engine Active'}
+                {isGeminiLive ? t('settings.geminiLiveBadge', 'Direct API Key Active') : t('settings.geminiMockBadge', 'Edge Function & Smart Engine Active')}
               </span>
             </div>
             <p className="text-xs text-stone-600 dark:text-dark-muted">
               {isGeminiLive
-                ? 'Direct Gemini 1.5/2.0 API connection enabled.'
-                : 'Runs via Supabase Edge Function with intelligent deterministic fallback.'}
+                ? t('settings.geminiLive', 'Direct Gemini 1.5/2.0 API connection enabled.')
+                : t('settings.geminiMock', 'Runs via Supabase Edge Function with intelligent deterministic fallback.')}
             </p>
           </div>
         </div>
@@ -364,19 +368,19 @@ export default function Settings() {
           </div>
           <div>
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              {t('settings.notifications', 'Notification Preferences')}
+              {t('settings.notifHeading', 'Notification Preferences')}
             </h3>
             <p className="text-xs text-stone-500">
-              Manage alerts for municipal reports and challenge updates.
+              {t('settings.notifSub', 'Manage alerts for municipal reports and challenge updates.')}
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
           {[
-            { id: 'reports', label: t('settings.notifReports', 'Civic Report status updates'), desc: 'Get notified when municipal squads review or resolve your reports' },
-            { id: 'challenges', label: t('settings.notifChallenges', 'Weekly Green Challenge reminders'), desc: 'Receive a reminder before weekly challenges reset on Sunday' },
-            { id: 'digest', label: t('settings.notifDigest', 'Monthly Environmental impact digest'), desc: 'Summary of your CO2 reductions and plant care achievements' }
+            { id: 'reports', label: t('settings.notifReports', 'Civic Report status updates'), desc: t('settings.notifReportsDesc', 'Get notified when municipal squads review or resolve your reports') },
+            { id: 'challenges', label: t('settings.notifChallenges', 'Weekly Green Challenge reminders'), desc: t('settings.notifChallengesDesc', 'Receive a reminder before weekly challenges reset on Sunday') },
+            { id: 'digest', label: t('settings.notifDigest', 'Monthly Environmental impact digest'), desc: t('settings.notifDigestDesc', 'Summary of your CO2 reductions and plant care achievements') }
           ].map((item) => (
             <label
               key={item.id}
@@ -402,10 +406,10 @@ export default function Settings() {
         <div>
           <h3 className="font-bold text-base text-red-900 dark:text-red-200 flex items-center gap-2">
             <Trash2 className="w-5 h-5 text-red-600" />
-            <span>{t('settings.dangerZone', 'Danger Zone')}</span>
+            <span>{t('settings.dangerHeading', 'Danger Zone')}</span>
           </h3>
           <p className="text-xs text-red-700/80 dark:text-red-300/80 mt-1">
-            Permanently delete your citizen account, reports, carbon audit history, and Green Score records.
+            {t('settings.deleteModalDesc', 'Permanently delete your citizen account, reports, carbon audit history, and Green Score records.')}
           </p>
         </div>
 
@@ -414,7 +418,7 @@ export default function Settings() {
           onClick={() => setShowDeleteModal(true)}
           className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
         >
-          {t('settings.deleteAccount', 'Delete Account')}
+          {t('settings.deleteBtn', 'Delete Account')}
         </button>
       </div>
 
@@ -428,10 +432,10 @@ export default function Settings() {
 
             <div className="text-center space-y-2">
               <h3 className="font-bold text-lg text-stone-900 dark:text-dark-text">
-                Confirm Permanent Account Deletion
+                {t('settings.deleteModalTitle', 'Delete Account Confirmation')}
               </h3>
               <p className="text-xs text-stone-600 dark:text-dark-muted leading-relaxed">
-                {t('settings.deleteConfirm', 'Are you sure you want to delete your account? This action is permanent and deletes all your records.')}
+                {t('settings.deleteModalDesc', 'Are you sure you want to delete your account? This action is permanent and deletes all your recorded reports, scores, and audits.')}
               </p>
             </div>
 
@@ -441,7 +445,7 @@ export default function Settings() {
                 onClick={() => setShowDeleteModal(false)}
                 className="flex-1 py-2.5 rounded-xl text-xs font-bold border border-stone-200 text-stone-700 hover:bg-stone-100"
               >
-                {t('common.cancel', 'Cancel')}
+                {t('settings.cancel', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -449,7 +453,7 @@ export default function Settings() {
                 disabled={deleting}
                 className="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-sm"
               >
-                {deleting ? 'Deleting...' : 'Confirm Delete'}
+                {deleting ? t('settings.deleting', 'Deleting...') : t('settings.confirmDelete', 'Yes, Delete My Account')}
               </button>
             </div>
           </div>

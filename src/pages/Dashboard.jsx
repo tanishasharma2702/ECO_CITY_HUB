@@ -129,7 +129,7 @@ export default function Dashboard() {
           value={scoreData?.totalScore !== undefined ? scoreData.totalScore : 0}
           subtitle={
             (scoreData?.totalScore || 0) > 0
-              ? `Tier: ${scoreData?.level?.name || 'Green Beginner'}`
+              ? `${t('score.achievementTier', 'Achievement Tier:')} ${t(`homeScore.tier${scoreData?.totalScore < 250 ? '1' : scoreData?.totalScore < 500 ? '2' : scoreData?.totalScore < 1000 ? '3' : '4'}Name`, scoreData?.level?.name || 'Green Beginner')}`
               : t('dashboard.noAchievementsYet', 'No achievements earned yet.')
           }
           icon={Award}
@@ -144,12 +144,12 @@ export default function Dashboard() {
           subtitle={
             latestCarbon
               ? (carbonDiffPercent !== null
-                  ? `${Number(carbonDiffPercent) <= 0 ? 'Decreased' : 'Increased'} by ${Math.abs(carbonDiffPercent)}%`
-                  : 'Monthly estimated CO2e')
+                  ? `${Number(carbonDiffPercent) <= 0 ? t('dashboard.decreasedBy', 'Decreased by') : t('dashboard.increasedBy', 'Increased by')} ${Math.abs(carbonDiffPercent)}%`
+                  : t('dashboard.monthlyEst', 'Monthly estimated CO2e'))
               : t('dashboard.noCarbonYet', "You haven't calculated your carbon footprint yet.")
           }
           icon={Footprints}
-          badgeText={latestCarbon ? (carbonDiffPercent !== null ? `${carbonDiffPercent}%` : 'Audited') : t('dashboard.pending', 'Pending')}
+          badgeText={latestCarbon ? (carbonDiffPercent !== null ? `${carbonDiffPercent}%` : t('carbon.auditSummary', 'Audited')) : t('dashboard.pending', 'Pending')}
           badgeType={latestCarbon ? (Number(carbonDiffPercent) <= 0 ? 'success' : 'warning') : 'default'}
         />
 
@@ -159,11 +159,11 @@ export default function Dashboard() {
           value={civicReports.length}
           subtitle={
             civicReports.length > 0
-              ? `${resolvedReportsCount} resolved, ${activeReportsCount} in review`
+              ? t('dashboard.reportsStatus', { resolved: resolvedReportsCount, active: activeReportsCount, defaultValue: `${resolvedReportsCount} resolved, ${activeReportsCount} in review` })
               : t('dashboard.noReportsYet', 'No reports submitted yet.')
           }
           icon={AlertTriangle}
-          badgeText={civicReports.length > 0 ? `${resolvedReportsCount} Closed` : t('dashboard.noneYet', 'None yet')}
+          badgeText={civicReports.length > 0 ? t('dashboard.closedReports', { count: resolvedReportsCount, defaultValue: `${resolvedReportsCount} Closed` }) : t('dashboard.noneYet', 'None yet')}
           badgeType={resolvedReportsCount > 0 ? 'success' : 'default'}
         />
 
@@ -173,11 +173,11 @@ export default function Dashboard() {
           value={plantHistory.length}
           subtitle={
             plantHistory.length > 0
-              ? 'Diagnosed with organic remedies'
+              ? t('plant.homeRemedies', 'Diagnosed with organic remedies')
               : t('dashboard.noPlantsYet', 'No plant analyses available.')
           }
           icon={Sprout}
-          badgeText={plantHistory.length > 0 ? 'Healed' : t('dashboard.getStarted', 'Get started')}
+          badgeText={plantHistory.length > 0 ? t('dashboard.healedBadge', 'Healed') : t('dashboard.getStarted', 'Get started')}
           badgeType={plantHistory.length > 0 ? 'info' : 'default'}
         />
 
@@ -201,14 +201,14 @@ export default function Dashboard() {
                 <Footprints className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-base text-eco-950 dark:text-dark-text group-hover:text-eco-800">
-                Carbon Calculator
+                {t('dashboard.cardCalcTitle', 'Carbon Calculator')}
               </h3>
               <p className="text-xs text-stone-600 dark:text-dark-muted leading-relaxed">
-                Compute emissions across commute, electricity, and diet. Receive personalized Gemini decarbonization plans.
+                {t('dashboard.cardCalcDesc', 'Compute emissions across commute, electricity, and diet. Receive personalized Gemini decarbonization plans.')}
               </p>
             </div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-eco-900 dark:text-eco-300">
-              <span>Calculate Footprint</span>
+              <span>{t('dashboard.cardCalcBtn', 'Calculate Footprint')}</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>
@@ -222,14 +222,14 @@ export default function Dashboard() {
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-base text-eco-950 dark:text-dark-text group-hover:text-eco-800">
-                Civic Issue Reporter
+                {t('dashboard.cardCivicTitle', 'Civic Issue Reporter')}
               </h3>
               <p className="text-xs text-stone-600 dark:text-dark-muted leading-relaxed">
-                Upload street hazard photos. Gemini Vision assesses urgency, suggests departments, and drafts complaints.
+                {t('dashboard.cardCivicDesc', 'Upload street hazard photos or videos. Gemini Vision assesses urgency, suggests departments, and drafts complaints.')}
               </p>
             </div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-eco-900 dark:text-eco-300">
-              <span>File a Report</span>
+              <span>{t('dashboard.cardCivicBtn', 'File a Report')}</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>
@@ -243,14 +243,14 @@ export default function Dashboard() {
                 <Sprout className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-base text-eco-950 dark:text-dark-text group-hover:text-eco-800">
-                Plant Health Checker
+                {t('dashboard.cardPlantTitle', 'Plant Health Checker')}
               </h3>
               <p className="text-xs text-stone-600 dark:text-dark-muted leading-relaxed">
-                Photograph a leaf or garden plant. Gemini detects diseases, uncovers causes, and prescribes organic remedies.
+                {t('dashboard.cardPlantDesc', 'Photograph or record an ailing plant. Gemini detects diseases, uncovers causes, and prescribes organic remedies.')}
               </p>
             </div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-eco-900 dark:text-eco-300">
-              <span>Diagnose Plant</span>
+              <span>{t('dashboard.cardPlantBtn', 'Diagnose Plant')}</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>
@@ -272,7 +272,7 @@ export default function Dashboard() {
               to="/green-challenges"
               className="text-xs font-bold text-eco-800 dark:text-eco-400 hover:underline"
             >
-              View All
+              {t('dashboard.viewAll', 'View All')}
             </Link>
           </div>
 
@@ -296,16 +296,16 @@ export default function Dashboard() {
                   </button>
                   <div>
                     <h4 className={`text-sm font-bold ${ch.isCompleted ? 'line-through text-stone-400 dark:text-stone-500' : 'text-stone-900 dark:text-dark-text'}`}>
-                      {ch.title}
+                      {t(`challenges.${ch.id}_title`, ch.title)}
                     </h4>
                     <p className="text-xs text-stone-500 dark:text-dark-muted line-clamp-1 mt-0.5">
-                      {ch.description}
+                      {t(`challenges.${ch.id}_desc`, ch.description)}
                     </p>
                   </div>
                 </div>
 
                 <span className="shrink-0 text-xs font-bold px-2 py-1 rounded-lg bg-eco-100 dark:bg-stone-800 text-eco-900 dark:text-eco-200">
-                  +{ch.points} pts
+                  +{ch.points} {t('challenges.points', 'pts')}
                 </span>
               </div>
             ))}

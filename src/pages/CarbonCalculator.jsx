@@ -129,7 +129,11 @@ export default function CarbonCalculator() {
 
   // Chart Data: Doughnut Breakdown
   const doughnutData = results ? {
-    labels: ['Transport', 'Electricity', 'Diet / Food'],
+    labels: [
+      t('carbon.transportTab', 'Transport'),
+      t('carbon.electricityTab', 'Electricity'),
+      t('carbon.foodTab', 'Diet / Food')
+    ],
     datasets: [
       {
         data: [
@@ -158,7 +162,7 @@ export default function CarbonCalculator() {
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-eco-100 text-eco-900 border border-eco-200 mb-2">
           <Footprints className="w-3.5 h-3.5" />
-          <span>Module 1: Environmental Impact</span>
+          <span>{t('carbon.moduleBadge', 'Module 1: Environmental Impact')}</span>
         </div>
         <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-eco-950 dark:text-dark-text tracking-tight">
           {t('carbon.title', 'Carbon Footprint Calculator')}
@@ -176,14 +180,14 @@ export default function CarbonCalculator() {
           <div className="flex items-center gap-2 border-b border-eco-100 dark:border-dark-border pb-3">
             <Car className="w-5 h-5 text-eco-800 dark:text-eco-300" />
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              1. Weekly Transportation (km / week)
+              {t('carbon.transportSection', '1. Weekly Transportation (km / week)')}
             </h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1">
-                Personal Car (Petrol/Diesel)
+                {t('carbon.carLabel', 'Personal Car (Petrol/Diesel)')}
               </label>
               <div className="relative">
                 <input
@@ -193,13 +197,15 @@ export default function CarbonCalculator() {
                   onChange={(e) => handleInputChange('carKm', e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
                 />
-                <span className="text-xs text-stone-400 absolute right-3 top-2.5">km/wk</span>
+                <span className="text-xs text-stone-400 absolute right-3 top-2.5">
+                  {t('carbon.kmPerWeek', 'km/wk')}
+                </span>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1">
-                Motorcycle / Scooter
+                {t('carbon.bikeLabel', 'Motorcycle / Scooter')}
               </label>
               <div className="relative">
                 <input
@@ -209,13 +215,15 @@ export default function CarbonCalculator() {
                   onChange={(e) => handleInputChange('motorbikeKm', e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
                 />
-                <span className="text-xs text-stone-400 absolute right-3 top-2.5">km/wk</span>
+                <span className="text-xs text-stone-400 absolute right-3 top-2.5">
+                  {t('carbon.kmPerWeek', 'km/wk')}
+                </span>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1">
-                Public Transit (Bus / Metro)
+                {t('carbon.transitLabel', 'Public Transit (Bus / Metro)')}
               </label>
               <div className="relative">
                 <input
@@ -225,13 +233,15 @@ export default function CarbonCalculator() {
                   onChange={(e) => handleInputChange('transitKm', e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
                 />
-                <span className="text-xs text-stone-400 absolute right-3 top-2.5">km/wk</span>
+                <span className="text-xs text-stone-400 absolute right-3 top-2.5">
+                  {t('carbon.kmPerWeek', 'km/wk')}
+                </span>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1">
-                Bicycle (Zero emissions)
+                {t('carbon.bicycleLabel', 'Bicycle (Zero emissions)')}
               </label>
               <div className="relative">
                 <input
@@ -241,13 +251,15 @@ export default function CarbonCalculator() {
                   onChange={(e) => handleInputChange('bicycleKm', e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
                 />
-                <span className="text-xs text-stone-400 absolute right-3 top-2.5">km/wk</span>
+                <span className="text-xs text-stone-400 absolute right-3 top-2.5">
+                  {t('carbon.kmPerWeek', 'km/wk')}
+                </span>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1">
-                Walking (Zero emissions)
+                {t('carbon.walkingLabel', 'Walking (Zero emissions)')}
               </label>
               <div className="relative">
                 <input
@@ -257,7 +269,9 @@ export default function CarbonCalculator() {
                   onChange={(e) => handleInputChange('walkingKm', e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
                 />
-                <span className="text-xs text-stone-400 absolute right-3 top-2.5">km/wk</span>
+                <span className="text-xs text-stone-400 absolute right-3 top-2.5">
+                  {t('carbon.kmPerWeek', 'km/wk')}
+                </span>
               </div>
             </div>
           </div>
@@ -268,14 +282,14 @@ export default function CarbonCalculator() {
           <div className="flex items-center gap-2 border-b border-eco-100 dark:border-dark-border pb-3">
             <Zap className="w-5 h-5 text-eco-800 dark:text-eco-300" />
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              2. Monthly Electricity Consumption
+              {t('carbon.electricitySection', '2. Monthly Electricity Consumption')}
             </h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1">
-                Monthly Electricity Units (kWh)
+                {t('carbon.electricityLabel', 'Monthly Electricity Units (kWh)')}
               </label>
               <div className="relative">
                 <input
@@ -285,10 +299,12 @@ export default function CarbonCalculator() {
                   onChange={(e) => handleInputChange('electricityKwh', e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
                 />
-                <span className="text-xs text-stone-400 absolute right-3 top-2.5">kWh / mo</span>
+                <span className="text-xs text-stone-400 absolute right-3 top-2.5">
+                  {t('carbon.kwhPerMonth', 'kWh / mo')}
+                </span>
               </div>
               <p className="text-[11px] text-stone-500 mt-1">
-                Typical household range: 100 to 300 kWh per month.
+                {t('carbon.electricityHelp', 'Typical household range: 100 to 300 kWh per month.')}
               </p>
             </div>
           </div>
@@ -299,15 +315,15 @@ export default function CarbonCalculator() {
           <div className="flex items-center gap-2 border-b border-eco-100 dark:border-dark-border pb-3">
             <Utensils className="w-5 h-5 text-eco-800 dark:text-eco-300" />
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              3. Dietary Habits
+              {t('carbon.dietSection', '3. Dietary Habits')}
             </h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
-              { id: 'vegan', title: 'Vegan', desc: '100% plant-based (~45 kg CO2e/mo)' },
-              { id: 'vegetarian', title: 'Vegetarian', desc: 'Dairy and plant foods (~85 kg CO2e/mo)' },
-              { id: 'mixed', title: 'Mixed / Omnivore', desc: 'Meat, poultry, & plant diet (~160 kg CO2e/mo)' }
+              { id: 'vegan', title: t('carbon.dietVeganTitle', 'Vegan'), desc: t('carbon.dietVeganDesc', '100% plant-based (~45 kg CO2e/mo)') },
+              { id: 'vegetarian', title: t('carbon.dietVegTitle', 'Vegetarian'), desc: t('carbon.dietVegDesc', 'Dairy and plant foods (~85 kg CO2e/mo)') },
+              { id: 'mixed', title: t('carbon.dietMixedTitle', 'Mixed / Omnivore'), desc: t('carbon.dietMixedDesc', 'Meat, poultry, & plant diet (~160 kg CO2e/mo)') }
             ].map((diet) => (
               <label
                 key={diet.id}
@@ -367,7 +383,7 @@ export default function CarbonCalculator() {
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-eco-100 dark:border-dark-border pb-4">
               <div>
                 <span className="text-xs font-bold text-eco-800 dark:text-eco-400 uppercase tracking-wider">
-                  Audit Summary
+                  {t('carbon.auditSummary', 'Audit Summary')}
                 </span>
                 <h2 className="font-display font-bold text-2xl text-eco-950 dark:text-dark-text mt-0.5">
                   {t('carbon.resultsTitle', 'Your Emissions Breakdown')}
@@ -379,7 +395,7 @@ export default function CarbonCalculator() {
                 {saveSuccess ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Saved (+30 Green Pts)</span>
+                    <span>{t('carbon.savedBadge', 'Saved (+30 Green Pts)')}</span>
                   </span>
                 ) : (
                   <button
@@ -389,7 +405,7 @@ export default function CarbonCalculator() {
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-eco-900 hover:bg-eco-950 transition-colors shadow-sm disabled:opacity-50"
                   >
                     <Save className="w-3.5 h-3.5" />
-                    <span>{saving ? 'Saving...' : 'Save to History'}</span>
+                    <span>{saving ? t('carbon.saving', 'Saving...') : t('carbon.saveBtn', 'Save to History')}</span>
                   </button>
                 )}
               </div>
@@ -407,7 +423,7 @@ export default function CarbonCalculator() {
                       {results.totalEmissions}
                     </span>
                     <span className="text-xs font-bold text-eco-800 dark:text-eco-400">
-                      kg CO2e / month
+                      {t('carbon.perMonth', 'kg CO2e / month')}
                     </span>
                   </div>
                 </div>
@@ -415,28 +431,32 @@ export default function CarbonCalculator() {
                 {diffPercent !== null && (
                   <div className="pt-3 border-t border-eco-200 dark:border-dark-border mt-3 text-xs font-semibold flex items-center gap-1.5">
                     <TrendingDown className="w-4 h-4 text-emerald-600" />
-                    <span>{diffPercent}% vs previous calculation</span>
+                    <span>{t('carbon.vsPrevious', { diff: diffPercent })}</span>
                   </div>
                 )}
               </div>
 
               <div className="p-4 rounded-2xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <span className="text-xs text-stone-500 font-medium">Transport</span>
+                <span className="text-xs text-stone-500 font-medium">
+                  {t('carbon.transportTab', 'Transport')}
+                </span>
                 <p className="font-display font-bold text-xl text-eco-950 dark:text-dark-text mt-1">
                   {results.transportEmissions} kg
                 </p>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  {((results.transportEmissions / results.totalEmissions) * 100).toFixed(0)}% of total
+                  {t('carbon.percentOfTotal', { percent: ((results.transportEmissions / results.totalEmissions) * 100).toFixed(0) })}
                 </p>
               </div>
 
               <div className="p-4 rounded-2xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <span className="text-xs text-stone-500 font-medium">Electricity</span>
+                <span className="text-xs text-stone-500 font-medium">
+                  {t('carbon.electricityTab', 'Electricity')}
+                </span>
                 <p className="font-display font-bold text-xl text-eco-950 dark:text-dark-text mt-1">
                   {results.electricityEmissions} kg
                 </p>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  {((results.electricityEmissions / results.totalEmissions) * 100).toFixed(0)}% of total
+                  {t('carbon.percentOfTotal', { percent: ((results.electricityEmissions / results.totalEmissions) * 100).toFixed(0) })}
                 </p>
               </div>
             </div>
@@ -459,22 +479,22 @@ export default function CarbonCalculator() {
 
               <div className="space-y-3 text-xs text-stone-600 dark:text-dark-muted">
                 <h4 className="font-bold text-sm text-eco-950 dark:text-dark-text">
-                  Deterministic Calculation Factors
+                  {t('carbon.factorsHeading', 'Deterministic Calculation Factors')}
                 </h4>
                 <p>
-                  • <strong>Passenger Car:</strong> 0.171 kg CO2e / km traveled.
+                  {t('carbon.factorCar', '• Passenger Car: 0.171 kg CO2e / km traveled.')}
                 </p>
                 <p>
-                  • <strong>Motorcycle:</strong> 0.082 kg CO2e / km traveled.
+                  {t('carbon.factorBike', '• Motorcycle: 0.082 kg CO2e / km traveled.')}
                 </p>
                 <p>
-                  • <strong>Public Transit:</strong> 0.041 kg CO2e / km traveled.
+                  {t('carbon.factorTransit', '• Public Transit: 0.041 kg CO2e / km traveled.')}
                 </p>
                 <p>
-                  • <strong>Electricity Grid Factor:</strong> 0.820 kg CO2e / kWh.
+                  {t('carbon.factorGrid', '• Electricity Grid Factor: 0.820 kg CO2e / kWh.')}
                 </p>
                 <p>
-                  • <strong>Dietary Baseline:</strong> Vegan (45 kg), Veg (85 kg), Mixed (160 kg) CO2e/month.
+                  {t('carbon.factorDiet', '• Dietary Baseline: Vegan (45 kg), Veg (85 kg), Mixed (160 kg) CO2e/month.')}
                 </p>
                 <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-[11px]">
                   {t('carbon.disclaimer', 'Note: Numerical figures are deterministic calculations based on standard IPCC emission factors. Recommendations are generated by Gemini AI.')}
@@ -520,7 +540,7 @@ export default function CarbonCalculator() {
                 {aiReport.longTermGoal && (
                   <div className="pt-2 flex items-start gap-2 text-xs text-stone-600 dark:text-dark-muted font-medium">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span><strong>90-Day Milestone:</strong> {aiReport.longTermGoal}</span>
+                    <span><strong>{t('carbon.milestoneLabel', '90-Day Milestone:')}</strong> {aiReport.longTermGoal}</span>
                   </div>
                 )}
               </div>
@@ -547,11 +567,11 @@ export default function CarbonCalculator() {
             <table className="w-full text-left text-xs">
               <thead className="border-b border-eco-100 dark:border-dark-border text-stone-500 uppercase">
                 <tr>
-                  <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3">Total CO2e</th>
-                  <th className="py-2.5 px-3">Transport</th>
-                  <th className="py-2.5 px-3">Electricity</th>
-                  <th className="py-2.5 px-3">Diet</th>
+                  <th className="py-2.5 px-3">{t('carbon.tableDate', 'Date')}</th>
+                  <th className="py-2.5 px-3">{t('carbon.tableTotal', 'Total CO2e')}</th>
+                  <th className="py-2.5 px-3">{t('carbon.tableTransport', 'Transport')}</th>
+                  <th className="py-2.5 px-3">{t('carbon.tableElectricity', 'Electricity')}</th>
+                  <th className="py-2.5 px-3">{t('carbon.tableDiet', 'Diet')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-eco-50 dark:divide-dark-border">
@@ -561,7 +581,7 @@ export default function CarbonCalculator() {
                       {new Date(rec.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-2.5 px-3 font-bold text-eco-950 dark:text-eco-200">
-                      {rec.total_emissions} kg/mo
+                      {rec.total_emissions} {t('carbon.perMonth', 'kg CO2e / month')}
                     </td>
                     <td className="py-2.5 px-3 text-stone-600 dark:text-dark-muted">
                       {rec.transport_emissions} kg
@@ -585,7 +605,7 @@ export default function CarbonCalculator() {
             {t('carbon.noHistoryYet', "You haven't calculated your carbon footprint yet.")}
           </h4>
           <p className="text-xs text-stone-500 max-w-md mx-auto">
-            Fill in your weekly transportation, monthly electricity consumption, and diet above, then click "{t('carbon.calculateBtn', 'Calculate Emissions & Get AI Plan')}" to record your first emissions audit and start earning Green Points!
+            {t('carbon.noHistoryHelp', 'Fill in your weekly transportation, monthly electricity consumption, and diet above, then click Calculate Emissions to record your first audit!')}
           </p>
         </div>
       )}

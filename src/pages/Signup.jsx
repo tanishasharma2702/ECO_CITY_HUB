@@ -122,7 +122,7 @@ export default function Signup() {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
-                  placeholder={t('auth.namePlaceholder', 'Enter your full name')}
+                  placeholder={t('auth.fullNamePlaceholder', 'e.g. Ramesh Kumar')}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-stone-900 dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-eco-500"
                   required
                 />
@@ -141,7 +141,7 @@ export default function Signup() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="name@example.com"
+                  placeholder={t('auth.emailPlaceholder', 'name@example.com')}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-stone-900 dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-eco-500"
                   required
                 />
@@ -161,7 +161,7 @@ export default function Signup() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Min 6 chars"
+                    placeholder="••••••••"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-stone-900 dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-eco-500"
                     required
                   />
@@ -179,7 +179,7 @@ export default function Signup() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder="Repeat password"
+                    placeholder="••••••••"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-stone-900 dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-eco-500"
                     required
                   />

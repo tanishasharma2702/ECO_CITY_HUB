@@ -116,7 +116,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
                   EcoCity Hub
                 </span>
                 <span className="text-[10px] font-semibold text-eco-800 dark:text-dark-muted block truncate">
-                  Smart City Platform
+                  {t('brand.smartCityDesc', 'Smart City Platform')}
                 </span>
               </div>
             )}
@@ -127,6 +127,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
             type="button"
             onClick={() => setMobileOpen(false)}
             className="lg:hidden p-1.5 rounded-lg text-stone-500 hover:bg-eco-100 dark:hover:bg-dark-bg"
+            title={t('common.close', 'Close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -178,7 +179,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
               )}
               <div className="truncate text-xs">
                 <p className="font-bold text-eco-950 dark:text-dark-text truncate">
-                  {user?.user_metadata?.full_name || 'Active Citizen'}
+                  {user?.user_metadata?.full_name || t('common.activeCitizen', 'Active Citizen')}
                 </p>
                 <p className="text-stone-500 dark:text-dark-muted truncate">
                   {user?.user_metadata?.city ? `${user.user_metadata.city}, ${user.user_metadata.state}` : (user?.user_metadata?.state || 'India')}
@@ -206,21 +207,15 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
               type="button"
               onClick={toggleCollapsed}
               className="w-full flex items-center justify-center p-2 rounded-xl text-stone-500 hover:bg-eco-100 dark:hover:bg-dark-bg transition-colors"
-              title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              title={collapsed ? t('common.expandSidebar', 'Expand Sidebar') : t('common.collapseSidebar', 'Collapse Sidebar')}
             >
               {collapsed ? (
                 <ChevronRight className="w-5 h-5" />
               ) : (
                 <div className="flex items-center gap-2 text-xs font-semibold text-stone-600 dark:text-dark-muted">
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Collapse Sidebar</span>
+                  <span>{t('common.collapseSidebar', 'Collapse Sidebar')}</span>
                 </div>
               )}
             </button>
-          </div>
-
-        </div>
-      </aside>
-    </>
-  );
-}
+      

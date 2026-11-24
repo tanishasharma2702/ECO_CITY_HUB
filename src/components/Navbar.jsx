@@ -45,7 +45,7 @@ export default function Navbar() {
                 EcoCity Hub
               </span>
               <p className="hidden sm:block text-[11px] font-medium text-eco-800 dark:text-dark-muted -mt-0.5">
-                One Platform. Three Problems. One Greener City.
+                {t('brand.tagline', 'One Platform. Three Problems. One Greener City.')}
               </p>
             </div>
           </Link>

@@ -194,7 +194,7 @@ export default function CivicReporter() {
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-eco-200 text-eco-950 border border-eco-300 mb-2">
           <AlertTriangle className="w-3.5 h-3.5" />
-          <span>Module 2: Civic Infrastructure Vigilance</span>
+          <span>{t('civic.moduleBadge', 'Module 2: Civic Infrastructure Vigilance')}</span>
         </div>
         <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-eco-950 dark:text-dark-text tracking-tight">
           {t('civic.title', 'Civic Issue Reporter')}
@@ -218,7 +218,7 @@ export default function CivicReporter() {
         <div className="space-y-3">
           <h3 className="font-bold text-base text-eco-950 dark:text-dark-text flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-eco-800 dark:text-eco-300" />
-            <span>1. {t('civic.uploadMediaTitle', 'Upload Photo or Video of Problem')}</span>
+            <span>1. {t('civic.step1Upload', 'Upload Photo or Video of Problem')}</span>
           </h3>
 
           <MediaUploadCapture
@@ -231,7 +231,7 @@ export default function CivicReporter() {
         <div className="space-y-4 pt-4 border-t border-eco-100 dark:border-dark-border">
           <h3 className="font-bold text-base text-eco-950 dark:text-dark-text flex items-center gap-2">
             <MapPin className="w-5 h-5 text-eco-800 dark:text-eco-300" />
-            <span>2. {t('civic.locationTitle', 'Location & Jurisdiction (India)')}</span>
+            <span>2. {t('civic.step2Location', 'Location & Jurisdiction (India)')}</span>
           </h3>
 
           <LocationSelector
@@ -242,13 +242,13 @@ export default function CivicReporter() {
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
-              Street Address / Landmark
+              {t('civic.addressLabel', 'Street Address / Landmark')}
             </label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="e.g. Near Hawa Mahal Circle, Badi Chaupar, Main Crossroad"
+              placeholder={t('civic.addressPlaceholder', 'e.g. Near Hawa Mahal Circle, Badi Chaupar, Main Crossroad')}
               className="w-full px-4 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
             />
           </div>
@@ -257,10 +257,10 @@ export default function CivicReporter() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-stone-700 dark:text-dark-muted">
-                Pinpoint Exact Coordinates on Map (Click on map to position pin)
+                {t('civic.pinpointLabel', 'Pinpoint Exact Coordinates on Map (Click on map to position pin)')}
               </span>
               <span className="text-[11px] font-mono text-stone-500">
-                Lat: {coordinates[0].toFixed(4)}, Lng: {coordinates[1].toFixed(4)}
+                {t('civic.latLng', { lat: coordinates[0].toFixed(4), lng: coordinates[1].toFixed(4) })}
               </span>
             </div>
 
@@ -286,45 +286,58 @@ export default function CivicReporter() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
-                Problem Category (AI can auto-suggest)
+                {t('civic.categoryLabel', 'Problem Category (AI can auto-suggest)')}
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
               >
-                {CIVIC_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
+                {CIVIC_CATEGORIES.map((cat) => {
+                  const catKeyMap = {
+                    'Potholes': 'catPotholes',
+                    'Garbage accumulation': 'catGarbage',
+                    'Water leakage': 'catWater',
+                    'Broken streetlights': 'catLights',
+                    'Damaged roads': 'catRoads',
+                    'Overflowing drains': 'catDrains',
+                    'Other civic problems': 'catOther'
+                  };
+                  return (
+                    <option key={cat} value={cat}>
+                      {t(`civic.${catKeyMap[cat] || 'catOther'}`, cat)}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
-                Urgency Priority
+                {t('civic.estimatedPriority', 'Urgency Priority')}
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500 font-semibold"
               >
-                <option value="Low">Low Priority</option>
-                <option value="Medium">Medium Priority</option>
-                <option value="High">High Priority</option>
-                <option value="Critical">Critical Priority</option>
+                <option value="Low">{t('civic.priorityLow', 'Low')} {t('civic.estimatedPriority', 'Priority')}</option>
+                <option value="Medium">{t('civic.priorityMedium', 'Medium')} {t('civic.estimatedPriority', 'Priority')}</option>
+                <option value="High">{t('civic.priorityHigh', 'High')} {t('civic.estimatedPriority', 'Priority')}</option>
+                <option value="Critical">{t('civic.priorityCritical', 'Critical')} {t('civic.estimatedPriority', 'Priority')}</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
-              Additional Citizen Notes / Context
+              {t('civic.notesLabel', 'Citizen Notes / Observations (Optional)')}
             </label>
             <textarea
               rows={2}
               value={userNotes}
               onChange={(e) => setUserNotes(e.target.value)}
-              placeholder="e.g. Causing traffic jams during rush hours, open drain exposed to pedestrians..."
+              placeholder={t('civic.notesPlaceholder', 'Describe dimensions, danger level, nearby landmarks, or duration...')}
               className="w-full px-4 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
             />
           </div>
@@ -341,7 +354,7 @@ export default function CivicReporter() {
             {isAnalyzing ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-eco-200" />
-                <span>{t('civic.analyzing', 'AI is analyzing the photograph and categorizing...')}</span>
+                <span>{t('civic.analyzing', 'AI is analyzing the media and categorizing...')}</span>
               </>
             ) : (
               <>
@@ -363,7 +376,7 @@ export default function CivicReporter() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-eco-100 dark:border-dark-border pb-4">
             <div>
               <span className="text-xs font-bold text-eco-800 dark:text-eco-400 uppercase tracking-wider">
-                Review & Complaint Draft
+                {t('civic.reviewTitle', 'AI Analysis & Complaint Draft')}
               </span>
               <h3 className="font-display font-bold text-2xl text-eco-950 dark:text-dark-text">
                 {aiAnalysis?.complaintTitle || `${category} Complaint Draft`}
@@ -376,7 +389,9 @@ export default function CivicReporter() {
                 priority === 'High' ? 'bg-orange-100 text-orange-800' :
                 priority === 'Medium' ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-800'
               }`}>
-                {priority} Priority
+                {priority === 'Critical' ? t('civic.priorityCritical', 'Critical') :
+                 priority === 'High' ? t('civic.priorityHigh', 'High') :
+                 priority === 'Medium' ? t('civic.priorityMedium', 'Medium') : t('civic.priorityLow', 'Low')} {t('civic.estimatedPriority', 'Priority')}
               </span>
             </div>
           </div>
@@ -386,22 +401,19 @@ export default function CivicReporter() {
             <div className="flex items-center gap-2.5">
               <Building className="w-4 h-4 text-eco-800 dark:text-eco-300" />
               <div>
-                <span className="text-stone-500 font-medium">Suggested Municipal Wing:</span>
+                <span className="text-stone-500 font-medium">{t('civic.suggestedDept', 'Suggested Municipal Department')}:</span>
                 <p className="font-bold text-eco-950 dark:text-dark-text text-sm">
                   {department}
                 </p>
               </div>
             </div>
-            <span className="text-[11px] text-stone-500">
-              Assigned based on visual hazard categorization
-            </span>
           </div>
 
           {/* Safety Hazards Identified */}
           {aiAnalysis?.safetyHazards && aiAnalysis.safetyHazards.length > 0 && (
             <div className="space-y-1.5">
               <span className="text-xs font-bold text-stone-700 dark:text-dark-muted">
-                Observed Safety Hazards:
+                {t('civic.safetyHazards', 'Observed Safety Hazards')}:
               </span>
               <div className="flex flex-wrap gap-2">
                 {aiAnalysis.safetyHazards.map((hz, idx) => (
@@ -417,7 +429,7 @@ export default function CivicReporter() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-stone-700 dark:text-dark-muted uppercase tracking-wider">
-                Official Grievance Letter (Fully Editable)
+                {t('civic.complaintLetterHeading', 'Official Municipal Complaint Letter (Editable)')}
               </label>
               <div className="flex items-center gap-2">
                 <button
@@ -426,7 +438,7 @@ export default function CivicReporter() {
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold border border-eco-200 dark:border-dark-border hover:bg-eco-100 transition-colors"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                  <span>{copied ? t('civic.copied', 'Copied') : t('civic.copyComplaint', 'Copy')}</span>
                 </button>
                 <button
                   type="button"
@@ -434,7 +446,7 @@ export default function CivicReporter() {
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold border border-eco-200 dark:border-dark-border hover:bg-eco-100 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download (.txt)</span>
+                  <span>{t('civic.downloadComplaint', 'Download Complaint')}</span>
                 </button>
               </div>
             </div>
@@ -445,17 +457,10 @@ export default function CivicReporter() {
               onChange={(e) => setEditableLetter(e.target.value)}
               className="w-full font-mono text-xs sm:text-sm p-4 rounded-2xl border border-eco-200 dark:border-dark-border bg-eco-50/30 dark:bg-dark-bg text-stone-800 dark:text-dark-text leading-relaxed focus:outline-none focus:ring-2 focus:ring-eco-500"
             />
-            <p className="text-[11px] text-stone-500 italic">
-              Notice: You can edit dates, names, or additional street landmarks directly before saving or copying. EcoCity Hub provides this draft to accelerate official municipal dispatch.
-            </p>
           </div>
 
           {/* Final Actions */}
           <div className="pt-4 border-t border-eco-100 dark:border-dark-border flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs text-stone-500">
-              Saving files this report into your community account and awards <strong>+50 Green Points</strong>.
-            </div>
-
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 type="button"
@@ -466,12 +471,12 @@ export default function CivicReporter() {
                 {saveSuccess ? (
                   <>
                     <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                    <span>Report Filed! (+50 pts)</span>
+                    <span>{t('civic.reportSuccess', 'Report Submitted Successfully (+50 pts)!')}</span>
                   </>
                 ) : (
                   <>
                     <ShieldAlert className="w-4 h-4 text-eco-200" />
-                    <span>{saving ? 'Filing Report...' : 'Save & File Report'}</span>
+                    <span>{saving ? t('civic.saving', 'Filing Report...') : t('civic.saveReport', 'Save & File Report')}</span>
                   </>
                 )}
               </button>

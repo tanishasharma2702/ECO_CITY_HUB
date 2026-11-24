@@ -13,7 +13,8 @@ export default function LanguageSelector({ variant = 'navbar' }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
+  const activeLangCode = (i18n.language || 'en').startsWith('hi') ? 'hi' : 'en';
+  const currentLang = LANGUAGES.find(l => l.code === activeLangCode) || LANGUAGES[0];
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -53,7 +54,7 @@ export default function LanguageSelector({ variant = 'navbar' }) {
                 key={lang.code}
                 onClick={() => selectLanguage(lang.code)}
                 className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors ${
-                  i18n.language === lang.code
+                  activeLangCode === lang.code
                     ? 'bg-eco-100 dark:bg-eco-950/60 text-eco-900 dark:text-eco-200 font-semibold'
                     : 'text-stone-700 dark:text-dark-muted hover:bg-eco-50 dark:hover:bg-stone-800'
                 }`}
@@ -63,7 +64,7 @@ export default function LanguageSelector({ variant = 'navbar' }) {
                   <span className="text-stone-800 dark:text-dark-text">{lang.native}</span>
                   <span className="text-xs text-stone-400">({lang.name})</span>
                 </div>
-                {i18n.language === lang.code && (
+                {activeLangCode === lang.code && (
                   <Check className="w-4 h-4 text-eco-700 dark:text-eco-400" />
                 )}
               </button>

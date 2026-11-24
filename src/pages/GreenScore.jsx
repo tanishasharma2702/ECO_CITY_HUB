@@ -56,10 +56,15 @@ export default function GreenScore() {
 
   // Breakdown Chart Data
   const barData = scoreData ? {
-    labels: ['Carbon Footprint (40%)', 'Civic Action (30%)', 'Plant Care (30%)', 'Weekly Challenges'],
+    labels: [
+      t('score.chartCarbon', 'Carbon Footprint (40%)'),
+      t('score.chartCivic', 'Civic Action (30%)'),
+      t('score.chartPlant', 'Plant Care (30%)'),
+      t('score.chartChallenges', 'Weekly Challenges')
+    ],
     datasets: [
       {
-        label: 'Earned Points',
+        label: t('score.totalPoints', 'Earned Points'),
         data: [
           scoreData.carbonScore,
           scoreData.civicScore,
@@ -79,7 +84,7 @@ export default function GreenScore() {
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-eco-200 text-eco-950 border border-eco-300 mb-2">
           <Award className="w-3.5 h-3.5" />
-          <span>Gamified Sustainability</span>
+          <span>{t('score.badge', 'Gamified Sustainability')}</span>
         </div>
         <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-eco-950 dark:text-dark-text tracking-tight">
           {t('score.title', 'Green Score & Community Achievements')}
@@ -94,23 +99,30 @@ export default function GreenScore() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-eco-200">
-              Verified Citizen Impact Score
+              {t('score.verifiedScore', 'Verified Citizen Impact Score')}
             </span>
             <div className="flex items-baseline gap-3 mt-1">
               <span className="font-display font-extrabold text-5xl sm:text-6xl text-white">
                 {scoreData?.totalScore ?? 0}
               </span>
               <span className="text-sm font-bold text-eco-200">
-                Total Green Points
+                {t('score.totalPoints', 'Total Green Points')}
               </span>
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-center sm:text-right">
-            <span className="text-xs text-eco-200 font-medium">Achievement Tier:</span>
+            <span className="text-xs text-eco-200 font-medium">{t('score.achievementTier', 'Achievement Tier:')}</span>
             <div className="flex items-center justify-center sm:justify-end gap-2 text-xl font-bold text-white mt-1">
               <span>{scoreData?.level?.badge || '🌱'}</span>
-              <span>{scoreData?.level?.name || 'Green Beginner'}</span>
+              <span>
+                {scoreData?.level?.name === 'Green Beginner' ? t('homeScore.tier1Name', 'Green Beginner') :
+                 scoreData?.level?.name === 'Eco Explorer' ? t('homeScore.tier2Name', 'Eco Explorer') :
+                 scoreData?.level?.name === 'Green Guardian' ? t('homeScore.tier2Name', 'Green Guardian') :
+                 scoreData?.level?.name === 'Eco Champion' ? t('homeScore.tier3Name', 'Eco Champion') :
+                 scoreData?.level?.name === 'Planet Protector' ? t('homeScore.tier4Name', 'Planet Protector') :
+                 scoreData?.level?.name || t('homeScore.tier1Name', 'Green Beginner')}
+              </span>
             </div>
           </div>
         </div>
@@ -118,8 +130,8 @@ export default function GreenScore() {
         {/* Progress bar to next level */}
         <div className="space-y-2 pt-2 border-t border-white/10">
           <div className="flex justify-between text-xs text-eco-200 font-semibold">
-            <span>Tier Progress</span>
-            <span>Next Tier: Eco Explorer (250 pts)</span>
+            <span>{t('score.tierProgress', 'Tier Progress')}</span>
+            <span>{t('score.nextTier', { next: t('homeScore.tier2Name', 'Eco Explorer'), pts: 250 })}</span>
           </div>
           <div className="h-3 rounded-full bg-white/20 overflow-hidden">
             <div
@@ -133,27 +145,27 @@ export default function GreenScore() {
       {/* Three Weight Pillars Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <StatCard
-          title="Carbon Footprint (40%)"
+          title={t('score.carbonWeightTitle', 'Carbon Footprint (40%)')}
           value={`${scoreData?.carbonScore || 0} pts`}
-          subtitle={`${scoreData?.recordsCount?.carbon || 0} calculations & reduction records`}
+          subtitle={t('score.carbonWeightSub', { count: scoreData?.recordsCount?.carbon || 0 })}
           icon={Footprints}
-          badgeText="Weight 40%"
+          badgeText={t('score.weightBadge', { percent: 40 })}
         />
 
         <StatCard
-          title="Civic Action (30%)"
+          title={t('score.civicWeightTitle', 'Civic Action (30%)')}
           value={`${scoreData?.civicScore || 0} pts`}
-          subtitle={`${scoreData?.recordsCount?.civic || 0} street hazard reports filed`}
+          subtitle={t('score.civicWeightSub', { count: scoreData?.recordsCount?.civic || 0 })}
           icon={AlertTriangle}
-          badgeText="Weight 30%"
+          badgeText={t('score.weightBadge', { percent: 30 })}
         />
 
         <StatCard
-          title="Plant Care (30%)"
+          title={t('score.plantWeightTitle', 'Plant Care (30%)')}
           value={`${scoreData?.plantScore || 0} pts`}
-          subtitle={`${scoreData?.recordsCount?.plants || 0} botanical diagnoses recorded`}
+          subtitle={t('score.plantWeightSub', { count: scoreData?.recordsCount?.plants || 0 })}
           icon={Sprout}
-          badgeText="Weight 30%"
+          badgeText={t('score.weightBadge', { percent: 30 })}
         />
       </div>
 
@@ -161,10 +173,10 @@ export default function GreenScore() {
       <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-6 sm:p-8 shadow-sm space-y-4">
         <h3 className="font-bold text-base text-eco-950 dark:text-dark-text flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-eco-800 dark:text-eco-300" />
-          <span>Transparent Points Ledger & Weights</span>
+          <span>{t('score.chartHeading', 'Transparent Points Ledger & Weights')}</span>
         </h3>
         <p className="text-xs text-stone-500">
-          Scores are mathematically calculated from genuine database records rather than arbitrary numbers.
+          {t('score.chartSub', 'Scores are mathematically calculated from genuine database records rather than arbitrary numbers.')}
         </p>
         <div className="h-64 pt-2">
           {barData && (
@@ -193,7 +205,7 @@ export default function GreenScore() {
             <span>{t('score.badgesEarned', 'Badges & Achievements')}</span>
           </h3>
           <span className="text-xs font-bold text-eco-800 dark:text-eco-400">
-            {scoreData?.badges?.length || 0} / {BADGE_DEFINITIONS.length} Unlocked
+            {t('score.unlockedCount', { unlocked: scoreData?.badges?.length || 0, total: BADGE_DEFINITIONS.length })}
           </span>
         </div>
 
@@ -201,8 +213,10 @@ export default function GreenScore() {
           <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-3">
             <span className="text-lg">🌱</span>
             <div>
-              <p className="font-bold">No achievements earned yet.</p>
-              <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">Complete carbon audits, file civic reports, or heal houseplants to unlock your first community badge!</p>
+              <p className="font-bold">{t('score.noAchievementsYet', 'No achievements earned yet.')}</p>
+              <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">
+                {t('score.noAchievementsHelp', 'Complete carbon audits, file civic reports, or heal houseplants to unlock your first community badge!')}
+              </p>
             </div>
           </div>
         )}
@@ -226,15 +240,15 @@ export default function GreenScore() {
                 </div>
                 <div>
                   <h4 className={`text-sm font-bold ${isUnlocked ? 'text-eco-950 dark:text-dark-text' : 'text-stone-500'}`}>
-                    {badge.title}
+                    {t(`score.badge_${badge.id}_title`, badge.title)}
                   </h4>
                   <p className="text-xs text-stone-500 dark:text-dark-muted mt-0.5">
-                    {badge.description}
+                    {t(`score.badge_${badge.id}_desc`, badge.description)}
                   </p>
                   <span className={`inline-block text-[10px] font-bold mt-1.5 px-2 py-0.5 rounded ${
                     isUnlocked ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200 text-stone-600'
                   }`}>
-                    {isUnlocked ? 'Unlocked' : 'In Progress'}
+                    {isUnlocked ? t('score.statusUnlocked', 'Unlocked') : t('score.statusInProgress', 'In Progress')}
                   </span>
                 </div>
               </div>

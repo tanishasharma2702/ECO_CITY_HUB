@@ -118,7 +118,7 @@ export default function PlantChecker() {
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-eco-300 text-eco-950 border border-eco-400 mb-2">
           <Sprout className="w-3.5 h-3.5" />
-          <span>Module 3: Botanical Intelligence & Flora Health</span>
+          <span>{t('plant.moduleBadge', 'Module 3: Botanical Intelligence & Flora Health')}</span>
         </div>
         <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-eco-950 dark:text-dark-text tracking-tight">
           {t('plant.title', 'Plant Health Checker')}
@@ -194,7 +194,7 @@ export default function PlantChecker() {
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-eco-100 dark:border-dark-border pb-4">
             <div>
               <span className="text-xs font-bold text-eco-800 dark:text-eco-400 uppercase tracking-wider">
-                {t('plant.diagnosisResults', 'Diagnostic Report')}
+                {t('plant.resultsHeading', 'Botanical Diagnostic Report')}
               </span>
               <h2 className="font-display font-bold text-2xl text-eco-950 dark:text-dark-text mt-0.5">
                 {diagnosis.plantName}
@@ -203,13 +203,13 @@ export default function PlantChecker() {
 
             <div className="flex items-center gap-3">
               <span className="px-3 py-1 rounded-full text-xs font-bold bg-eco-100 text-eco-900">
-                Confidence: {diagnosis.confidenceScore}%
+                {t('plant.confidence', 'AI Confidence')}: {diagnosis.confidenceScore}%
               </span>
 
               {saveSuccess ? (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Saved (+40 Pts)</span>
+                  <span>{t('plant.savedBadge', 'Diagnosis Saved (+30 Green Pts)')}</span>
                 </span>
               ) : (
                 <button
@@ -219,7 +219,7 @@ export default function PlantChecker() {
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-eco-900 hover:bg-eco-950 transition-colors shadow-sm disabled:opacity-50"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>{saving ? 'Saving...' : t('plant.saveAnalysis', 'Save to Plant Care History')}</span>
+                  <span>{saving ? t('common.saving', 'Saving...') : t('plant.saveBtn', 'Save to Care History')}</span>
                 </button>
               )}
             </div>
@@ -228,7 +228,7 @@ export default function PlantChecker() {
           {/* Condition Overview Banner */}
           <div className="p-4 rounded-2xl bg-eco-100/60 dark:bg-dark-bg border border-eco-200 dark:border-dark-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <span className="text-xs text-stone-500 font-medium">Likely Condition:</span>
+              <span className="text-xs text-stone-500 font-medium">{t('plant.conditionLabel', 'Likely Condition')}:</span>
               <h3 className="font-bold text-lg text-eco-950 dark:text-dark-text">
                 {diagnosis.likelyCondition}
               </h3>
@@ -251,7 +251,7 @@ export default function PlantChecker() {
             <div className="p-5 rounded-2xl bg-eco-50/70 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border space-y-2">
               <h4 className="font-bold text-sm text-eco-950 dark:text-dark-text flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-eco-800" />
-                <span>{t('plant.symptoms', 'Visible Symptoms')}</span>
+                <span>{t('plant.symptomsHeading', 'Visible Symptoms Detected')}</span>
               </h4>
               <ul className="space-y-1.5 text-xs text-stone-600 dark:text-dark-muted">
                 {diagnosis.visibleSymptoms?.map((sym, idx) => (
@@ -267,7 +267,7 @@ export default function PlantChecker() {
             <div className="p-5 rounded-2xl bg-eco-50/70 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border space-y-2">
               <h4 className="font-bold text-sm text-eco-950 dark:text-dark-text flex items-center gap-2">
                 <Droplets className="w-4 h-4 text-eco-800" />
-                <span>{t('plant.causes', 'Underlying Causes')}</span>
+                <span>{t('plant.causesHeading', 'Root Causes & Stress Factors')}</span>
               </h4>
               <ul className="space-y-1.5 text-xs text-stone-600 dark:text-dark-muted">
                 {diagnosis.possibleCauses?.map((cause, idx) => (
@@ -285,7 +285,7 @@ export default function PlantChecker() {
           <div className="p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/50 space-y-2">
             <h4 className="font-bold text-sm text-emerald-950 dark:text-emerald-200 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
-              <span>{t('plant.treatment', 'Recommended Treatment')}</span>
+              <span>{t('plant.treatmentHeading', 'Immediate Recommended Treatment')}</span>
             </h4>
             <p className="text-xs text-stone-700 dark:text-dark-text leading-relaxed">
               {diagnosis.recommendedTreatment}
@@ -329,7 +329,7 @@ export default function PlantChecker() {
 
           {/* Botanical Safety Disclaimer */}
           <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-xs">
-            <strong>Important Safety Notice:</strong> {t('plant.disclaimer', 'AI assessments are assistive guidelines. For rare species or severe farm blights, consult an agricultural extension specialist. We never recommend unsafe chemicals.')}
+            <strong>{t('common.notice', 'Important Safety Notice')}:</strong> {t('plant.disclaimer', 'AI assessments are assistive guidelines. For rare species or severe farm blights, consult an agricultural extension specialist. We never recommend unsafe chemicals.')}
           </div>
 
         </div>
@@ -343,7 +343,7 @@ export default function PlantChecker() {
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-eco-800 dark:text-eco-300" />
             <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-              Plant Care Activity History
+              {t('plant.historyTitle', 'Plant Care Activity History')}
             </h3>
           </div>
 
@@ -398,7 +398,7 @@ export default function PlantChecker() {
             {t('plant.noHistoryYet', 'No plant analyses available.')}
           </h4>
           <p className="text-xs text-stone-500 max-w-md mx-auto">
-            Upload a photo or video of an ailing leaf or houseplant above to receive instant botanical diagnostics, root-cause identification, and safe organic remedies!
+            {t('plant.noHistoryHelp', 'Upload a photo or video of an ailing leaf or houseplant above to receive instant botanical diagnostics, root-cause identification, and safe organic remedies!')}
           </p>
         </div>
       )}
