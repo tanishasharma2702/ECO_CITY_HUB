@@ -163,14 +163,22 @@ export default function MyReports() {
                   </div>
                 </div>
 
-                {/* Photo Thumbnail if present */}
+                {/* Media Thumbnail (Photo or Video) if present */}
                 {report.image_url && (
                   <div className="rounded-xl overflow-hidden h-40 bg-black/5 dark:bg-black/30 border border-eco-100 dark:border-dark-border">
-                    <img
-                      src={report.image_url}
-                      alt={report.title}
-                      className="w-full h-full object-cover"
-                    />
+                    {report.media_type === 'video' || report.image_url.startsWith('data:video') || /\.(mp4|webm|ogg|mov)$/i.test(report.image_url) ? (
+                      <video
+                        src={report.image_url}
+                        controls
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={report.image_url}
+                        alt={report.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </div>
                 )}
 
@@ -231,9 +239,9 @@ export default function MyReports() {
         <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-12 text-center space-y-4">
           <AlertTriangle className="w-12 h-12 text-stone-300 dark:text-stone-600 mx-auto" />
           <div className="space-y-1">
-            <h3 className="font-bold text-lg text-eco-950 dark:text-dark-text">No Civic Reports Found</h3>
+            <h3 className="font-bold text-lg text-eco-950 dark:text-dark-text">No reports submitted yet.</h3>
             <p className="text-xs text-stone-500 max-w-sm mx-auto">
-              You haven't filed any reports in this tab. Photograph street issues to notify local municipal squads and earn Green Score points!
+              You haven't filed any civic issue reports in this category yet. Photograph street issues to notify local municipal squads and earn Green Score points!
             </p>
           </div>
           <Link
@@ -272,6 +280,25 @@ export default function MyReports() {
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+              {/* Media Preview in Modal */}
+              {selectedReport.image_url && (
+                <div className="rounded-2xl overflow-hidden max-h-56 bg-black/5 dark:bg-black/30 border border-eco-100 dark:border-dark-border">
+                  {selectedReport.media_type === 'video' || selectedReport.image_url.startsWith('data:video') || /\.(mp4|webm|ogg|mov)$/i.test(selectedReport.image_url) ? (
+                    <video
+                      src={selectedReport.image_url}
+                      controls
+                      className="w-full max-h-56 object-contain mx-auto"
+                    />
+                  ) : (
+                    <img
+                      src={selectedReport.image_url}
+                      alt={selectedReport.title}
+                      className="w-full max-h-56 object-cover"
+                    />
+                  )}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-eco-50 dark:bg-dark-bg border border-eco-200 dark:border-dark-border">
                 <div>
                   <span className="text-stone-400">Category:</span>

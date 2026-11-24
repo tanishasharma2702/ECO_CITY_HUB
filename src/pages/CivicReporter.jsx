@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import LocationSelector from '../components/LocationSelector';
+import MediaUploadCapture from '../components/MediaUploadCapture';
 import { analyzeCivicImage } from '../services/geminiService';
 import { createCivicReport, CIVIC_CATEGORIES } from '../services/civicService';
 import {
@@ -21,7 +22,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  ShieldAlert
+  ShieldAlert,
+  Film
 } from 'lucide-react';
 
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
@@ -51,15 +53,13 @@ export default function CivicReporter() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Form State
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageBase64, setImageBase64] = useState(null);
+  // Media State (Photo or Video)
+  const [mediaData, setMediaData] = useState(null);
   const [category, setCategory] = useState('Potholes');
   const [userNotes, setUserNotes] = useState('');
   const [address, setAddress] = useState('');
   const [location, setLocation] = useState({
-    country: user?.user_metadata?.country || 'India',
+    country: 'India',
     state: user?.user_metadata?.state || 'Rajasthan',
     city: user?.user_metadata?.city || 'Jaipur'
   });
@@ -80,47 +80,22 @@ export default function CivicReporter() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const fileInputRef = useRef(null);
-
-  // Handle Image Upload
-  const handleImageSelect = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file (JPEG, PNG, or WebP).');
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Image file size must be less than 10MB.');
-      return;
-    }
-
+  // Handle Media Selected from MediaUploadCapture
+  const handleMediaSelected = (data) => {
     setError('');
-    setImageFile(file);
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const dataUrl = reader.result;
-      setImagePreview(dataUrl);
-      const base64Data = dataUrl.split(',')[1];
-      setImageBase64(base64Data);
-    };
-    reader.readAsDataURL(file);
+    setMediaData(data);
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setImageBase64(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const handleMediaCleared = () => {
+    setMediaData(null);
+    setAiAnalysis(null);
+    setEditableLetter('');
   };
 
   // Run Gemini Vision Analysis
   const handleAnalyze = async () => {
-    if (!imageBase64) {
-      setError('Please upload a photo of the civic problem before running AI analysis.');
+    if (!mediaData?.frameBase64) {
+      setError(t('civic.uploadRequired', 'Please upload a photo or video of the civic problem before running AI analysis.'));
       return;
     }
 
@@ -128,8 +103,8 @@ export default function CivicReporter() {
     setIsAnalyzing(true);
     try {
       const result = await analyzeCivicImage({
-        imageBase64,
-        mimeType: imageFile?.type || 'image/jpeg',
+        imageBase64: mediaData.frameBase64,
+        mimeType: mediaData.frameMimeType || 'image/jpeg',
         userNotes,
         location: { ...location, address },
         language: i18n.language || 'en'
@@ -144,7 +119,7 @@ export default function CivicReporter() {
       }
     } catch (err) {
       console.error('Civic image analysis error:', err);
-      setError('Analysis failed. Please check the image and try again.');
+      setError(t('civic.analysisFailed', 'Analysis failed. Please check the media and try again.'));
     } finally {
       setIsAnalyzing(false);
     }
@@ -171,7 +146,7 @@ export default function CivicReporter() {
   // Save Report to Supabase
   const handleSaveReport = async () => {
     if (!user?.id) {
-      setError('Please log in to save and file this report.');
+      setError(t('civic.loginToSave', 'Please log in to save and file this report.'));
       return;
     }
 
@@ -182,8 +157,8 @@ export default function CivicReporter() {
         title: aiAnalysis?.complaintTitle || `${category} at ${address || location.city}`,
         category,
         description: userNotes || aiAnalysis?.explanation,
-        imageUrl: imagePreview,
-        country: location.country,
+        imageUrl: mediaData?.previewUrl || null,
+        country: 'India',
         state: location.state,
         city: location.city,
         address,
@@ -202,11 +177,11 @@ export default function CivicReporter() {
           navigate('/my-reports');
         }, 1200);
       } else {
-        setError('Failed to record report. Please retry.');
+        setError(t('civic.failedToRecord', 'Failed to record report. Please retry.'));
       }
     } catch (err) {
       console.error('Save civic report error:', err);
-      setError('An error occurred while saving the report.');
+      setError(t('civic.saveError', 'An error occurred while saving the report.'));
     } finally {
       setSaving(false);
     }
@@ -239,65 +214,27 @@ export default function CivicReporter() {
       {/* Main Step 1: Upload & Details Card */}
       <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-6 sm:p-8 shadow-sm space-y-8">
         
-        {/* Step A: Photo Upload */}
+        {/* Step A: Photo / Video Upload & Camera Capture */}
         <div className="space-y-3">
           <h3 className="font-bold text-base text-eco-950 dark:text-dark-text flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-eco-800 dark:text-eco-300" />
-            <span>1. Upload Photograph of Civic Problem</span>
+            <span>1. {t('civic.uploadMediaTitle', 'Upload Photo or Video of Problem')}</span>
           </h3>
 
-          {!imagePreview ? (
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-eco-300 dark:border-dark-border rounded-3xl p-8 sm:p-12 text-center cursor-pointer hover:bg-eco-50/50 dark:hover:bg-dark-bg/40 transition-colors space-y-3"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-eco-100 dark:bg-stone-800 text-eco-900 dark:text-eco-200 flex items-center justify-center mx-auto shadow-sm">
-                <Upload className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-eco-950 dark:text-dark-text">
-                  Click or drag image to upload
-                </p>
-                <p className="text-xs text-stone-500 dark:text-dark-muted mt-1">
-                  Supports JPG, PNG, WebP up to 10MB
-                </p>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={handleImageSelect}
-                className="hidden"
-              />
-            </div>
-          ) : (
-            <div className="relative rounded-2xl border border-eco-200 dark:border-dark-border overflow-hidden bg-black max-w-lg">
-              <img
-                src={imagePreview}
-                alt="Civic hazard preview"
-                className="w-full max-h-80 object-contain mx-auto"
-              />
-              <button
-                type="button"
-                onClick={handleRemoveImage}
-                className="absolute top-3 right-3 p-2 rounded-xl bg-black/70 hover:bg-black text-white transition-colors"
-                title="Remove photo"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+          <MediaUploadCapture
+            onMediaSelected={handleMediaSelected}
+            onMediaCleared={handleMediaCleared}
+          />
         </div>
 
         {/* Step B: Location Selector + Coordinates */}
         <div className="space-y-4 pt-4 border-t border-eco-100 dark:border-dark-border">
           <h3 className="font-bold text-base text-eco-950 dark:text-dark-text flex items-center gap-2">
             <MapPin className="w-5 h-5 text-eco-800 dark:text-eco-300" />
-            <span>2. Location & Jurisdiction</span>
+            <span>2. {t('civic.locationTitle', 'Location & Jurisdiction (India)')}</span>
           </h3>
 
           <LocationSelector
-            country={location.country}
             state={location.state}
             city={location.city}
             onChange={(loc) => setLocation(loc)}
@@ -398,7 +335,7 @@ export default function CivicReporter() {
           <button
             type="button"
             onClick={handleAnalyze}
-            disabled={isAnalyzing || !imageBase64}
+            disabled={isAnalyzing || !mediaData?.frameBase64}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-eco-900 hover:bg-eco-950 shadow-md hover:shadow-lg transition-all disabled:opacity-50"
           >
             {isAnalyzing ? (

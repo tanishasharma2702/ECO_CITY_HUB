@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import MediaUploadCapture from '../components/MediaUploadCapture';
 import { analyzePlantImage } from '../services/geminiService';
 import { savePlantAnalysis, getUserPlantHistory } from '../services/plantService';
 import {
@@ -19,17 +20,16 @@ import {
   AlertTriangle,
   Loader2,
   Droplets,
-  Sun
+  Sun,
+  Film
 } from 'lucide-react';
 
 export default function PlantChecker() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
 
-  // Photo state
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageBase64, setImageBase64] = useState(null);
+  // Media state (Photo or Video)
+  const [mediaData, setMediaData] = useState(null);
   const [userRemarks, setUserRemarks] = useState('');
   const [error, setError] = useState('');
 
@@ -39,8 +39,6 @@ export default function PlantChecker() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [history, setHistory] = useState([]);
-
-  const fileInputRef = useRef(null);
 
   // Load history
   const loadHistory = async () => {
@@ -55,45 +53,21 @@ export default function PlantChecker() {
     loadHistory();
   }, [user?.id]);
 
-  // Image selection
-  const handleImageSelect = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image format (JPEG, PNG, WebP).');
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Image must be under 10MB.');
-      return;
-    }
-
+  // Media selection from MediaUploadCapture
+  const handleMediaSelected = (data) => {
     setError('');
-    setImageFile(file);
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const dataUrl = reader.result;
-      setImagePreview(dataUrl);
-      const base64Data = dataUrl.split(',')[1];
-      setImageBase64(base64Data);
-    };
-    reader.readAsDataURL(file);
+    setMediaData(data);
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setImageBase64(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const handleMediaCleared = () => {
+    setMediaData(null);
+    setDiagnosis(null);
   };
 
   // Run Botanical AI Vision Diagnosis
   const handleDiagnose = async () => {
-    if (!imageBase64) {
-      setError('Please upload a leaf or plant photo to diagnose.');
+    if (!mediaData?.frameBase64) {
+      setError(t('plant.uploadPrompt', 'Please upload a clear photo or video of the leaf or plant.'));
       return;
     }
 
@@ -103,8 +77,8 @@ export default function PlantChecker() {
 
     try {
       const res = await analyzePlantImage({
-        imageBase64,
-        mimeType: imageFile?.type || 'image/jpeg',
+        imageBase64: mediaData.frameBase64,
+        mimeType: mediaData.frameMimeType || 'image/jpeg',
         notes: userRemarks,
         language: i18n.language || 'en'
       });
@@ -112,11 +86,11 @@ export default function PlantChecker() {
       if (res.success && res.data) {
         setDiagnosis(res.data);
       } else {
-        setError('Could not analyze the photo. Please try a clearer leaf photo.');
+        setError(t('plant.analysisFailed', 'Could not analyze the photo. Please try a clearer leaf photo.'));
       }
     } catch (err) {
       console.error('Plant analysis error:', err);
-      setError('Diagnosis failed. Please check network connection.');
+      setError(t('plant.connectionError', 'Diagnosis failed. Please check network connection.'));
     } finally {
       setAnalyzing(false);
     }
@@ -128,7 +102,7 @@ export default function PlantChecker() {
     setSaving(true);
     const saveRes = await savePlantAnalysis(user.id, {
       ...diagnosis,
-      imageUrl: imagePreview
+      imageUrl: mediaData?.previewUrl || null
     });
     setSaving(false);
     if (saveRes.success) {
@@ -166,60 +140,23 @@ export default function PlantChecker() {
         
         <h3 className="font-bold text-base text-eco-950 dark:text-dark-text flex items-center gap-2">
           <Leaf className="w-5 h-5 text-eco-800 dark:text-eco-300" />
-          <span>1. Upload Plant or Leaf Photograph</span>
+          <span>1. {t('plant.uploadMediaTitle', 'Upload Photo or Video of Plant / Leaf')}</span>
         </h3>
 
-        {!imagePreview ? (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-eco-300 dark:border-dark-border rounded-3xl p-8 sm:p-12 text-center cursor-pointer hover:bg-eco-50/50 dark:hover:bg-dark-bg/40 transition-colors space-y-3"
-          >
-            <div className="w-14 h-14 rounded-2xl bg-eco-100 dark:bg-stone-800 text-eco-900 dark:text-eco-200 flex items-center justify-center mx-auto shadow-sm">
-              <Upload className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-eco-950 dark:text-dark-text">
-                {t('plant.uploadPrompt', 'Upload a clear photo of the leaf, stem, or plant')}
-              </p>
-              <p className="text-xs text-stone-500 dark:text-dark-muted mt-1">
-                Natural morning lighting yields highest botanical diagnostic accuracy
-              </p>
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleImageSelect}
-              className="hidden"
-            />
-          </div>
-        ) : (
-          <div className="relative rounded-2xl border border-eco-200 dark:border-dark-border overflow-hidden bg-black max-w-md mx-auto">
-            <img
-              src={imagePreview}
-              alt="Plant leaf preview"
-              className="w-full max-h-80 object-contain mx-auto"
-            />
-            <button
-              type="button"
-              onClick={handleRemoveImage}
-              className="absolute top-3 right-3 p-2 rounded-xl bg-black/70 hover:bg-black text-white transition-colors"
-              title="Remove photo"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+        <MediaUploadCapture
+          onMediaSelected={handleMediaSelected}
+          onMediaCleared={handleMediaCleared}
+        />
 
         <div>
           <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
-            Optional Symptoms or Observations
+            {t('plant.optionalRemarks', 'Optional Symptoms or Observations')}
           </label>
           <input
             type="text"
             value={userRemarks}
             onChange={(e) => setUserRemarks(e.target.value)}
-            placeholder="e.g. Yellowing starting from bottom leaves, small white specks on underside..."
+            placeholder={t('plant.remarksPlaceholder', 'e.g. Yellowing starting from bottom leaves, white specks, wilting...')}
             className="w-full px-4 py-2.5 rounded-xl border border-eco-200 dark:border-dark-border bg-eco-50/50 dark:bg-dark-bg text-sm text-stone-900 dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-eco-500"
           />
         </div>
@@ -228,7 +165,7 @@ export default function PlantChecker() {
           <button
             type="button"
             onClick={handleDiagnose}
-            disabled={analyzing || !imageBase64}
+            disabled={analyzing || !mediaData?.frameBase64}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-eco-900 hover:bg-eco-950 shadow-md hover:shadow-lg transition-all disabled:opacity-50"
           >
             {analyzing ? (
@@ -399,9 +336,9 @@ export default function PlantChecker() {
       )}
 
       {/* =====================================================================
-          SAVED PLANT CARE HISTORY
+          SAVED PLANT CARE HISTORY / EMPTY STATE
           ===================================================================== */}
-      {history.length > 0 && (
+      {history.length > 0 ? (
         <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-eco-800 dark:text-eco-300" />
@@ -411,37 +348,58 @@ export default function PlantChecker() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {history.slice(0, 6).map((item) => (
-              <div
-                key={item.id}
-                className="p-4 rounded-2xl bg-eco-50/60 dark:bg-dark-bg border border-eco-200 dark:border-dark-border space-y-2.5"
-              >
-                {item.image_url && (
-                  <div className="h-32 rounded-xl overflow-hidden bg-black/5 border border-eco-100 dark:border-dark-border">
-                    <img
-                      src={item.image_url}
-                      alt={item.plant_name}
-                      className="w-full h-full object-cover"
-                    />
+            {history.slice(0, 6).map((item) => {
+              const isVideo = item.media_type === 'video' || (item.image_url && (item.image_url.startsWith('data:video') || /\.(mp4|webm|ogg|mov)$/i.test(item.image_url)));
+              return (
+                <div
+                  key={item.id}
+                  className="p-4 rounded-2xl bg-eco-50/60 dark:bg-dark-bg border border-eco-200 dark:border-dark-border space-y-2.5"
+                >
+                  {item.image_url && (
+                    <div className="h-32 rounded-xl overflow-hidden bg-black/5 border border-eco-100 dark:border-dark-border">
+                      {isVideo ? (
+                        <video
+                          src={item.image_url}
+                          controls
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={item.image_url}
+                          alt={item.plant_name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-[10px] text-stone-400">
+                      {new Date(item.created_at).toLocaleDateString()}
+                    </span>
+                    <h4 className="font-bold text-sm text-eco-950 dark:text-dark-text truncate">
+                      {item.plant_name}
+                    </h4>
+                    <p className="text-xs text-eco-800 dark:text-eco-400 font-medium">
+                      {item.health_status}
+                    </p>
                   </div>
-                )}
-                <div>
-                  <span className="text-[10px] text-stone-400">
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </span>
-                  <h4 className="font-bold text-sm text-eco-950 dark:text-dark-text truncate">
-                    {item.plant_name}
-                  </h4>
-                  <p className="text-xs text-eco-800 dark:text-eco-400 font-medium">
-                    {item.health_status}
+                  <p className="text-[11px] text-stone-600 dark:text-dark-muted line-clamp-2">
+                    {item.recommended_treatment}
                   </p>
                 </div>
-                <p className="text-[11px] text-stone-600 dark:text-dark-muted line-clamp-2">
-                  {item.recommended_treatment}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
+        </div>
+      ) : (
+        <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-8 text-center space-y-3">
+          <Sprout className="w-10 h-10 text-stone-300 dark:text-stone-600 mx-auto" />
+          <h4 className="font-bold text-base text-eco-950 dark:text-dark-text">
+            {t('plant.noHistoryYet', 'No plant analyses available.')}
+          </h4>
+          <p className="text-xs text-stone-500 max-w-md mx-auto">
+            Upload a photo or video of an ailing leaf or houseplant above to receive instant botanical diagnostics, root-cause identification, and safe organic remedies!
+          </p>
         </div>
       )}
 

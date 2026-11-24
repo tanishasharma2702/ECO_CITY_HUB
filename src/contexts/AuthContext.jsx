@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Sign up
-  const signUp = async ({ email, password, full_name, country, state, city }) => {
+  const signUp = async ({ email, password, full_name, state, city, avatar_url }) => {
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -46,9 +46,10 @@ export function AuthProvider({ children }) {
         options: {
           data: {
             full_name,
-            country: country || 'India',
+            country: 'India',
             state: state || '',
             city: city || '',
+            avatar_url: avatar_url || '',
             theme_preference: 'light',
             font_size: 'md',
             language_preference: 'en'
@@ -79,11 +80,6 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Instant Guest / Demo sign in (for frictionless preview)
-  const loginAsDemoUser = async () => {
-    return await signIn('citizen@ecocityhub.org', 'password123');
   };
 
   // Sign out
@@ -149,8 +145,7 @@ export function AuthProvider({ children }) {
     signOut,
     resetPassword,
     updateProfile,
-    deleteAccount,
-    loginAsDemoUser
+    deleteAccount
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

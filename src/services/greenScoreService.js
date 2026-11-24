@@ -36,13 +36,15 @@ export function getLevelForScore(score) {
 export async function calculateGreenScore(userId) {
   if (!userId) {
     return {
-      totalScore: 50,
-      carbonScore: 20,
-      civicScore: 15,
-      plantScore: 15,
+      totalScore: 0,
+      carbonScore: 0,
+      civicScore: 0,
+      plantScore: 0,
+      challengeBonus: 0,
       level: ACHIEVEMENT_LEVELS[0],
       badges: [],
-      recordsCount: { carbon: 0, civic: 0, plants: 0, challenges: 0 }
+      recordsCount: { carbon: 0, civic: 0, plants: 0, challenges: 0 },
+      recentActivities: []
     };
   }
 
@@ -61,19 +63,19 @@ export async function calculateGreenScore(userId) {
     const plantCount = plantRes.data?.length || 0;
     const challengeCount = challengeRes.data?.length || 0;
 
-    // A. Carbon Points (Max 400 pts baseline from regular audits + reduction progress)
+    // A. Carbon Points (Max 400 pts from actual audits + reduction progress)
     let carbonPoints = Math.min(400, carbonCount * 40);
     // Extra bonus if user has 2+ records and emissions decreased
     if (carbonCount >= 2) {
       const records = carbonRes.data;
-      const latest = records[0]?.total_emissions || 0;
-      const prev = records[1]?.total_emissions || 0;
+      const latest = Number(records[0]?.total_emissions) || 0;
+      const prev = Number(records[1]?.total_emissions) || 0;
       if (prev > 0 && latest < prev) {
         carbonPoints = Math.min(400, carbonPoints + 50); // bonus for reducing
       }
     }
 
-    // B. Civic Points (Max 300 pts baseline: 50 pts per report filed, +20 for resolved)
+    // B. Civic Points (50 pts per report filed, +25 for resolved)
     let civicPoints = 0;
     civicRes.data?.forEach(rep => {
       civicPoints += 50;
@@ -81,17 +83,17 @@ export async function calculateGreenScore(userId) {
     });
     civicPoints = Math.min(300, civicPoints);
 
-    // C. Plant Points (Max 300 pts baseline: 40 pts per diagnosis/care action)
+    // C. Plant Points (40 pts per diagnosis/care action)
     const plantPoints = Math.min(300, plantCount * 40);
 
     // D. Challenge Bonus Points
     const challengeBonus = challengeCount * 50;
 
-    // Total Score
-    const totalScore = Math.max(50, carbonPoints + civicPoints + plantPoints + challengeBonus);
+    // Total Score computed strictly from actual activities
+    const totalScore = carbonPoints + civicPoints + plantPoints + challengeBonus;
     const level = getLevelForScore(totalScore);
 
-    // Earned Badges
+    // Earned Badges based strictly on actual achievements
     const badges = [];
     if (carbonCount + civicCount + plantCount > 0) badges.push(BADGE_DEFINITIONS[0]); // First Step
     if (carbonCount >= 1) badges.push(BADGE_DEFINITIONS[1]); // Carbon Pioneer
@@ -130,12 +132,13 @@ export async function calculateGreenScore(userId) {
   } catch (err) {
     console.error('Error computing green score:', err);
     return {
-      totalScore: 75,
-      carbonScore: 30,
-      civicScore: 25,
-      plantScore: 20,
+      totalScore: 0,
+      carbonScore: 0,
+      civicScore: 0,
+      plantScore: 0,
+      challengeBonus: 0,
       level: ACHIEVEMENT_LEVELS[0],
-      badges: [BADGE_DEFINITIONS[0]],
+      badges: [],
       recordsCount: { carbon: 0, civic: 0, plants: 0, challenges: 0 },
       recentActivities: []
     };

@@ -74,23 +74,23 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Quick Metrics */}
+            {/* Platform Highlights */}
             <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-eco-200/80 dark:border-dark-border text-center lg:text-left">
               <div>
-                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">12,450+</p>
-                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">Active Citizens</p>
+                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">3 Pillars</p>
+                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">Carbon, Civic & Flora</p>
               </div>
               <div>
-                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">38.4k</p>
-                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">kg CO2 Tracked</p>
+                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">28 + 8</p>
+                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">States & UTs Covered</p>
               </div>
               <div>
-                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">2,890+</p>
-                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">Civic Issues Solved</p>
+                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">100%</p>
+                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">Real Citizen Data</p>
               </div>
               <div>
-                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">96.8%</p>
-                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">Plant Recovery</p>
+                <p className="font-display font-bold text-2xl sm:text-3xl text-eco-900 dark:text-eco-200">AI Vision</p>
+                <p className="text-xs text-stone-500 dark:text-dark-muted font-medium">Gemini Multimodal</p>
               </div>
             </div>
           </div>
@@ -410,64 +410,86 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Sample Dashboard Preview Card */}
+          {/* Transparent Scoring Architecture & Tier Progression */}
           <div className="rounded-2xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-6 shadow-lg space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-eco-100 dark:border-dark-border pb-4">
               <div>
-                <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200">
-                  Sample Dashboard Preview (Example Demonstration)
+                <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider bg-eco-100 text-eco-900 dark:bg-eco-950 dark:text-eco-200">
+                  Transparent Formula & Real Database Computation
                 </span>
                 <h3 className="font-display font-bold text-lg text-stone-900 dark:text-dark-text mt-1">
-                  Citizen Profile: Aarav Patel (Jaipur, India)
+                  How Citizens Earn Genuine Green Score Points
                 </h3>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-stone-500 dark:text-dark-muted">Current Tier:</span>
+                <span className="text-xs text-stone-500 dark:text-dark-muted">Initial Baseline:</span>
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-eco-900 text-white">
-                  🌿 Eco Explorer (485 pts)
+                  0 Points (Zero Fake Points)
                 </span>
               </div>
             </div>
 
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <p className="text-xs text-stone-500 font-medium">Carbon Footprint Progress</p>
-                <p className="font-display font-bold text-2xl text-eco-950 dark:text-dark-text mt-1">-22%</p>
-                <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">180 pts earned (40% weight)</p>
+            {/* Three Weighted Pillars */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl bg-eco-50/70 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-eco-950 dark:text-dark-text">40% Weight</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Up to 400 pts</span>
+                </div>
+                <h4 className="font-bold text-sm text-stone-800 dark:text-dark-text">Carbon Reduction</h4>
+                <p className="text-xs text-stone-600 dark:text-dark-muted">
+                  Earn points by conducting verifiable carbon audits and documenting reductions in your monthly commute and electricity usage.
+                </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <p className="text-xs text-stone-500 font-medium">Civic Reports Filed</p>
-                <p className="font-display font-bold text-2xl text-eco-950 dark:text-dark-text mt-1">3 Reports</p>
-                <p className="text-[11px] text-eco-800 dark:text-eco-400 font-semibold mt-0.5">150 pts earned (30% weight)</p>
+              <div className="p-4 rounded-xl bg-eco-50/70 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-eco-950 dark:text-dark-text">30% Weight</span>
+                  <span className="text-[10px] font-bold text-eco-800 bg-eco-200 px-2 py-0.5 rounded">Up to 300 pts</span>
+                </div>
+                <h4 className="font-bold text-sm text-stone-800 dark:text-dark-text">Civic Vigilance</h4>
+                <p className="text-xs text-stone-600 dark:text-dark-muted">
+                  Earn +50 points for every street hazard reported, plus +25 bonus points when the issue is resolved by municipal authorities.
+                </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <p className="text-xs text-stone-500 font-medium">Plant Health Activities</p>
-                <p className="font-display font-bold text-2xl text-eco-950 dark:text-dark-text mt-1">4 Plants</p>
-                <p className="text-[11px] text-eco-800 dark:text-eco-400 font-semibold mt-0.5">155 pts earned (30% weight)</p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <p className="text-xs text-stone-500 font-medium">Weekly Challenges</p>
-                <p className="font-display font-bold text-2xl text-eco-950 dark:text-dark-text mt-1">2 Completed</p>
-                <p className="text-[11px] text-purple-700 dark:text-purple-400 font-semibold mt-0.5">+100 bonus pts</p>
+              <div className="p-4 rounded-xl bg-eco-50/70 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-eco-950 dark:text-dark-text">30% Weight</span>
+                  <span className="text-[10px] font-bold text-eco-800 bg-eco-200 px-2 py-0.5 rounded">Up to 300 pts</span>
+                </div>
+                <h4 className="font-bold text-sm text-stone-800 dark:text-dark-text">Botanical Health</h4>
+                <p className="text-xs text-stone-600 dark:text-dark-muted">
+                  Earn +30 points for diagnosing plant diseases with AI vision, adopting organic treatments, and nursing plants back to health.
+                </p>
               </div>
             </div>
 
-            {/* Badges preview row */}
-            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-eco-100 dark:border-dark-border">
-              <span className="text-xs font-semibold text-stone-700 dark:text-dark-muted">Sample Badges:</span>
-              <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-eco-100 text-eco-900 border border-eco-200">
-                🌱 First Green Step
-              </span>
-              <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-eco-100 text-eco-900 border border-eco-200">
-                🛡️ Civic Sentinel
-              </span>
-              <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-eco-100 text-eco-900 border border-eco-200">
-                🌿 Botanical Healer
-              </span>
+            {/* Citizen Achievement Tiers */}
+            <div className="pt-2 border-t border-eco-100 dark:border-dark-border space-y-2">
+              <span className="text-xs font-semibold text-stone-700 dark:text-dark-muted">Citizen Achievement Tiers:</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-2.5 rounded-xl bg-eco-100/60 dark:bg-dark-bg border border-eco-200 text-center">
+                  <span className="text-sm">🌱</span>
+                  <p className="text-xs font-bold text-eco-950 dark:text-dark-text mt-0.5">Green Beginner</p>
+                  <p className="text-[10px] text-stone-500">0 – 249 pts</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-eco-100/60 dark:bg-dark-bg border border-eco-200 text-center">
+                  <span className="text-sm">🌿</span>
+                  <p className="text-xs font-bold text-eco-950 dark:text-dark-text mt-0.5">Eco Explorer</p>
+                  <p className="text-[10px] text-stone-500">250 – 499 pts</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-eco-100/60 dark:bg-dark-bg border border-eco-200 text-center">
+                  <span className="text-sm">🌳</span>
+                  <p className="text-xs font-bold text-eco-950 dark:text-dark-text mt-0.5">Eco Champion</p>
+                  <p className="text-[10px] text-stone-500">500 – 999 pts</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-eco-100/60 dark:bg-dark-bg border border-eco-200 text-center">
+                  <span className="text-sm">🌍</span>
+                  <p className="text-xs font-bold text-eco-950 dark:text-dark-text mt-0.5">Planet Protector</p>
+                  <p className="text-[10px] text-stone-500">1000+ pts</p>
+                </div>
+              </div>
             </div>
           </div>
 

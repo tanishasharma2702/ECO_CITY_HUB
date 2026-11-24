@@ -44,14 +44,14 @@ export default function CarbonCalculator() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
 
-  // Inputs
+  // Inputs - clean zero baseline
   const [inputs, setInputs] = useState({
-    carKm: 30,
-    motorbikeKm: 20,
-    transitKm: 25,
-    bicycleKm: 10,
-    walkingKm: 5,
-    electricityKwh: 140,
+    carKm: 0,
+    motorbikeKm: 0,
+    transitKm: 0,
+    bicycleKm: 0,
+    walkingKm: 0,
+    electricityKwh: 0,
     dietType: 'vegetarian'
   });
 
@@ -532,9 +532,9 @@ export default function CarbonCalculator() {
       )}
 
       {/* =====================================================================
-          CALCULATION HISTORY
+          CALCULATION HISTORY / EMPTY STATE
           ===================================================================== */}
-      {history.length > 0 && (
+      {history.length > 0 ? (
         <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-eco-800 dark:text-eco-300" />
@@ -577,6 +577,16 @@ export default function CarbonCalculator() {
               </tbody>
             </table>
           </div>
+        </div>
+      ) : (
+        <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-8 text-center space-y-3">
+          <Footprints className="w-10 h-10 text-stone-300 dark:text-stone-600 mx-auto" />
+          <h4 className="font-bold text-base text-eco-950 dark:text-dark-text">
+            {t('carbon.noHistoryYet', "You haven't calculated your carbon footprint yet.")}
+          </h4>
+          <p className="text-xs text-stone-500 max-w-md mx-auto">
+            Fill in your weekly transportation, monthly electricity consumption, and diet above, then click "{t('carbon.calculateBtn', 'Calculate Emissions & Get AI Plan')}" to record your first emissions audit and start earning Green Points!
+          </p>
         </div>
       )}
 

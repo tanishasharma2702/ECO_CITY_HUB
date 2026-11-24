@@ -89,18 +89,34 @@ export default function Dashboard() {
       
       {/* 1. Header & Welcome Message */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-eco-950 dark:text-dark-text tracking-tight">
-            {t('dashboard.welcome', 'Welcome back')}, {user?.user_metadata?.full_name || 'Citizen'}!
-          </h1>
-          <p className="text-sm text-stone-600 dark:text-dark-muted mt-1">
-            {t('dashboard.subtitle', 'Here is an overview of your environmental impact and civic contributions.')}
-          </p>
+        <div className="flex items-center gap-3.5">
+          {user?.user_metadata?.avatar_url ? (
+            <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-eco-300 dark:border-dark-border shadow-sm shrink-0">
+              <img
+                src={user.user_metadata.avatar_url}
+                alt={user?.user_metadata?.full_name || 'Citizen'}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-14 h-14 rounded-2xl bg-eco-900 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+              {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+            </div>
+          )}
+
+          <div>
+            <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-eco-950 dark:text-dark-text tracking-tight">
+              {t('dashboard.welcome', 'Welcome back')}, {user?.user_metadata?.full_name || 'Citizen'}!
+            </h1>
+            <p className="text-sm text-stone-600 dark:text-dark-muted mt-1">
+              {t('dashboard.subtitle', 'Here is an overview of your environmental impact and civic contributions.')}
+            </p>
+          </div>
         </div>
 
         {/* Current City Pill */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border text-xs font-semibold text-eco-900 dark:text-eco-200 shadow-sm self-start sm:self-auto">
-          <span>📍 {user?.user_metadata?.city || 'Jaipur'}, {user?.user_metadata?.country || 'India'}</span>
+          <span>📍 {user?.user_metadata?.city ? `${user.user_metadata.city}, ${user.user_metadata.state}` : (user?.user_metadata?.state || 'India')}</span>
         </div>
       </div>
 
@@ -110,34 +126,44 @@ export default function Dashboard() {
         {/* Green Score Card */}
         <StatCard
           title={t('dashboard.totalGreenScore', 'Total Green Score')}
-          value={scoreData?.totalScore || 50}
-          subtitle={`Tier: ${scoreData?.level?.name || 'Green Beginner'}`}
+          value={scoreData?.totalScore !== undefined ? scoreData.totalScore : 0}
+          subtitle={
+            (scoreData?.totalScore || 0) > 0
+              ? `Tier: ${scoreData?.level?.name || 'Green Beginner'}`
+              : t('dashboard.noAchievementsYet', 'No achievements earned yet.')
+          }
           icon={Award}
-          badgeText={scoreData?.level?.badge || '🌱'}
-          badgeType="success"
+          badgeText={(scoreData?.totalScore || 0) > 0 ? (scoreData?.level?.badge || '🌱') : t('dashboard.noPoints', '0 pts')}
+          badgeType={(scoreData?.totalScore || 0) > 0 ? 'success' : 'default'}
         />
 
         {/* Carbon Footprint Card */}
         <StatCard
           title={t('dashboard.carbonProgress', 'Carbon Footprint')}
-          value={latestCarbon ? `${latestCarbon.total_emissions} kg` : 'Not tested'}
+          value={latestCarbon ? `${latestCarbon.total_emissions} kg` : t('dashboard.notCalculated', 'Not Calculated')}
           subtitle={
-            carbonDiffPercent !== null
-              ? `${Number(carbonDiffPercent) <= 0 ? 'Decreased' : 'Increased'} by ${Math.abs(carbonDiffPercent)}%`
-              : latestCarbon ? 'Monthly estimated CO2e' : 'Run first calculation'
+            latestCarbon
+              ? (carbonDiffPercent !== null
+                  ? `${Number(carbonDiffPercent) <= 0 ? 'Decreased' : 'Increased'} by ${Math.abs(carbonDiffPercent)}%`
+                  : 'Monthly estimated CO2e')
+              : t('dashboard.noCarbonYet', "You haven't calculated your carbon footprint yet.")
           }
           icon={Footprints}
-          badgeText={carbonDiffPercent !== null ? `${carbonDiffPercent}%` : latestCarbon ? 'Audited' : 'Pending'}
-          badgeType={Number(carbonDiffPercent) <= 0 ? 'success' : 'warning'}
+          badgeText={latestCarbon ? (carbonDiffPercent !== null ? `${carbonDiffPercent}%` : 'Audited') : t('dashboard.pending', 'Pending')}
+          badgeType={latestCarbon ? (Number(carbonDiffPercent) <= 0 ? 'success' : 'warning') : 'default'}
         />
 
         {/* Civic Reports Card */}
         <StatCard
           title={t('dashboard.civicReports', 'Civic Reports Filed')}
           value={civicReports.length}
-          subtitle={`${resolvedReportsCount} resolved, ${activeReportsCount} in review`}
+          subtitle={
+            civicReports.length > 0
+              ? `${resolvedReportsCount} resolved, ${activeReportsCount} in review`
+              : t('dashboard.noReportsYet', 'No reports submitted yet.')
+          }
           icon={AlertTriangle}
-          badgeText={civicReports.length > 0 ? `${resolvedReportsCount} Closed` : 'None yet'}
+          badgeText={civicReports.length > 0 ? `${resolvedReportsCount} Closed` : t('dashboard.noneYet', 'None yet')}
           badgeType={resolvedReportsCount > 0 ? 'success' : 'default'}
         />
 
@@ -145,10 +171,14 @@ export default function Dashboard() {
         <StatCard
           title={t('dashboard.plantsCared', 'Plants Diagnosed')}
           value={plantHistory.length}
-          subtitle={plantHistory.length > 0 ? 'Diagnosed with organic remedies' : 'No plant checks yet'}
+          subtitle={
+            plantHistory.length > 0
+              ? 'Diagnosed with organic remedies'
+              : t('dashboard.noPlantsYet', 'No plant analyses available.')
+          }
           icon={Sprout}
-          badgeText={plantHistory.length > 0 ? 'Healed' : 'Get started'}
-          badgeType="info"
+          badgeText={plantHistory.length > 0 ? 'Healed' : t('dashboard.getStarted', 'Get started')}
+          badgeType={plantHistory.length > 0 ? 'info' : 'default'}
         />
 
       </div>

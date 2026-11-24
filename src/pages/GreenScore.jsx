@@ -98,7 +98,7 @@ export default function GreenScore() {
             </span>
             <div className="flex items-baseline gap-3 mt-1">
               <span className="font-display font-extrabold text-5xl sm:text-6xl text-white">
-                {scoreData?.totalScore || 50}
+                {scoreData?.totalScore ?? 0}
               </span>
               <span className="text-sm font-bold text-eco-200">
                 Total Green Points
@@ -109,8 +109,8 @@ export default function GreenScore() {
           <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-center sm:text-right">
             <span className="text-xs text-eco-200 font-medium">Achievement Tier:</span>
             <div className="flex items-center justify-center sm:justify-end gap-2 text-xl font-bold text-white mt-1">
-              <span>{scoreData?.level?.badge}</span>
-              <span>{scoreData?.level?.name}</span>
+              <span>{scoreData?.level?.badge || '🌱'}</span>
+              <span>{scoreData?.level?.name || 'Green Beginner'}</span>
             </div>
           </div>
         </div>
@@ -119,12 +119,12 @@ export default function GreenScore() {
         <div className="space-y-2 pt-2 border-t border-white/10">
           <div className="flex justify-between text-xs text-eco-200 font-semibold">
             <span>Tier Progress</span>
-            <span>Next Tier: Eco Champion (1000 pts)</span>
+            <span>Next Tier: Eco Explorer (250 pts)</span>
           </div>
           <div className="h-3 rounded-full bg-white/20 overflow-hidden">
             <div
               className="h-full bg-eco-200 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, ((scoreData?.totalScore || 50) / 1000) * 100)}%` }}
+              style={{ width: `${Math.min(100, (((scoreData?.totalScore ?? 0)) / 250) * 100)}%` }}
             />
           </div>
         </div>
@@ -196,6 +196,16 @@ export default function GreenScore() {
             {scoreData?.badges?.length || 0} / {BADGE_DEFINITIONS.length} Unlocked
           </span>
         </div>
+
+        {(scoreData?.badges?.length || 0) === 0 && (
+          <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-3">
+            <span className="text-lg">🌱</span>
+            <div>
+              <p className="font-bold">No achievements earned yet.</p>
+              <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">Complete carbon audits, file civic reports, or heal houseplants to unlock your first community badge!</p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {BADGE_DEFINITIONS.map((badge) => {

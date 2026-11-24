@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useFontSize } from '../contexts/FontSizeContext';
 import LocationSelector from '../components/LocationSelector';
 import LanguageSelector from '../components/LanguageSelector';
+import ProfilePictureSelector from '../components/ProfilePictureSelector';
 import { isSupabaseConfigured } from '../services/supabase';
 import { isGeminiConfigured } from '../services/geminiService';
 import {
@@ -36,8 +37,9 @@ export default function Settings() {
 
   // Profile Form State
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || '');
+  const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || '');
   const [location, setLocation] = useState({
-    country: user?.user_metadata?.country || 'India',
+    country: 'India',
     state: user?.user_metadata?.state || 'Rajasthan',
     city: user?.user_metadata?.city || 'Jaipur'
   });
@@ -66,7 +68,8 @@ export default function Settings() {
 
     await updateProfile({
       full_name: fullName,
-      country: location.country,
+      avatar_url: avatarUrl,
+      country: 'India',
       state: location.state,
       city: location.city
     });
@@ -125,7 +128,15 @@ export default function Settings() {
           )}
         </div>
 
-        <form onSubmit={handleProfileSave} className="space-y-4">
+        <form onSubmit={handleProfileSave} className="space-y-6">
+          {/* Change Profile Picture */}
+          <div className="pb-4 border-b border-eco-100 dark:border-dark-border">
+            <ProfilePictureSelector
+              value={avatarUrl}
+              onChange={setAvatarUrl}
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-1 uppercase tracking-wider">
@@ -153,13 +164,12 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* Location Selector */}
+          {/* Location Selector (India State/UT & City) */}
           <div className="pt-2">
             <label className="block text-xs font-semibold text-stone-700 dark:text-dark-muted mb-2 uppercase tracking-wider">
-              Default Civic Jurisdiction
+              {t('location.sectionTitle', 'India Location (State & City)')}
             </label>
             <LocationSelector
-              country={location.country}
               state={location.state}
               city={location.city}
               onChange={(loc) => setLocation(loc)}

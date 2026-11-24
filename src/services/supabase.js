@@ -29,23 +29,18 @@ class MockSupabaseClient {
   }
 
   initDefaultData() {
-    if (!localStorage.getItem('ecocity_mock_users')) {
-      const defaultUser = {
-        id: 'usr-demo-001',
-        email: 'citizen@ecocityhub.org',
-        password: 'password123',
-        user_metadata: {
-          full_name: 'Aarav Patel',
-          country: 'India',
-          state: 'Rajasthan',
-          city: 'Jaipur'
-        }
-      };
-      localStorage.setItem('ecocity_mock_users', JSON.stringify([defaultUser]));
-    }
+    // Clean any legacy fake user profiles from local mock storage
+    try {
+      const existingUsers = JSON.parse(localStorage.getItem('ecocity_mock_users') || '[]');
+      const sanitized = existingUsers.filter(u => u.id !== 'usr-demo-001' && u.email !== 'citizen@ecocityhub.org');
+      localStorage.setItem('ecocity_mock_users', JSON.stringify(sanitized));
 
-    if (!localStorage.getItem('ecocity_mock_session')) {
-      // Default to guest/logged out initially, user can sign in or use one-click demo
+      const existingSession = JSON.parse(localStorage.getItem('ecocity_mock_session') || 'null');
+      if (existingSession?.user?.id === 'usr-demo-001') {
+        localStorage.removeItem('ecocity_mock_session');
+      }
+    } catch {
+      localStorage.setItem('ecocity_mock_users', JSON.stringify([]));
     }
   }
 

@@ -163,15 +163,25 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
           {/* User profile snippet */}
           {!collapsed && (
             <div className="p-2.5 rounded-xl bg-eco-50 dark:bg-dark-bg flex items-center gap-3 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-eco-300 dark:bg-stone-700 text-eco-950 dark:text-eco-200 flex items-center justify-center font-bold text-xs shrink-0">
-                {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-              </div>
+              {user?.user_metadata?.avatar_url ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-eco-300 dark:border-dark-border shrink-0">
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt={user?.user_metadata?.full_name || 'Citizen'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-eco-300 dark:bg-stone-700 text-eco-950 dark:text-eco-200 flex items-center justify-center font-bold text-xs shrink-0">
+                  {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                </div>
+              )}
               <div className="truncate text-xs">
                 <p className="font-bold text-eco-950 dark:text-dark-text truncate">
                   {user?.user_metadata?.full_name || 'Active Citizen'}
                 </p>
                 <p className="text-stone-500 dark:text-dark-muted truncate">
-                  {user?.user_metadata?.city || 'Jaipur'}, {user?.user_metadata?.country || 'India'}
+                  {user?.user_metadata?.city ? `${user.user_metadata.city}, ${user.user_metadata.state}` : (user?.user_metadata?.state || 'India')}
                 </p>
               </div>
             </div>

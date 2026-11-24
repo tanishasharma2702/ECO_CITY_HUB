@@ -2,19 +2,18 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { Leaf, Mail, Lock, AlertCircle, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Leaf, Mail, Lock, AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, loginAsDemoUser } = useAuth();
+  const { signIn } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
 
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -23,7 +22,7 @@ export default function Login() {
     setError('');
 
     if (!email || !password) {
-      setError('Please fill in both your email address and password.');
+      setError(t('auth.fillAllFields', 'Please fill in both your email address and password.'));
       return;
     }
 
@@ -32,21 +31,9 @@ export default function Login() {
     setLoading(false);
 
     if (authError) {
-      setError(authError.message || 'Invalid credentials. Please try again.');
+      setError(authError.message || t('auth.invalidCredentials', 'Invalid credentials. Please try again.'));
     } else {
       navigate(from, { replace: true });
-    }
-  };
-
-  const handleDemoLogin = async () => {
-    setError('');
-    setDemoLoading(true);
-    const { error: authError } = await loginAsDemoUser();
-    setDemoLoading(false);
-    if (!authError) {
-      navigate('/dashboard', { replace: true });
-    } else {
-      setError('Demo login error: ' + authError.message);
     }
   };
 
@@ -126,23 +113,7 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Quick Demo Access Button */}
-          <div className="pt-2 border-t border-eco-100 dark:border-dark-border">
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              disabled={demoLoading}
-              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-eco-900 dark:text-eco-200 bg-eco-100 hover:bg-eco-200/80 border border-eco-300 dark:border-dark-border transition-colors flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-eco-700" />
-              <span>{demoLoading ? 'Logging into demo...' : 'Try Guest Demo (One-Click Instant Access)'}</span>
-            </button>
-            <p className="text-[11px] text-center text-stone-500 dark:text-dark-muted mt-1.5">
-              Instantly preview with pre-seeded demo activities.
-            </p>
-          </div>
-
-          <div className="text-center text-xs text-stone-600 dark:text-dark-muted pt-1">
+          <div className="text-center text-xs text-stone-600 dark:text-dark-muted pt-2 border-t border-eco-100 dark:border-dark-border">
             {t('auth.noAccount', "Don't have an account?")}{' '}
             <Link to="/signup" className="font-bold text-eco-900 dark:text-eco-300 hover:underline">
               {t('auth.signupBtn', 'Create Account')}

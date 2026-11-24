@@ -39,9 +39,11 @@ export default function AuthenticatedLayout() {
               <span className="font-display font-bold text-base sm:text-lg text-eco-950 dark:text-dark-text">
                 EcoCity Hub
               </span>
-              <span className="hidden sm:inline-block text-xs text-eco-800 dark:text-dark-muted ml-2 font-medium">
-                • {user?.user_metadata?.city || 'Civic Ward'}
-              </span>
+              {user?.user_metadata?.city && (
+                <span className="hidden sm:inline-block text-xs text-eco-800 dark:text-dark-muted ml-2 font-medium">
+                  • {user.user_metadata.city}, {user.user_metadata.state}
+                </span>
+              )}
             </div>
           </div>
 
@@ -52,19 +54,29 @@ export default function AuthenticatedLayout() {
               className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
                 isOnlineDb
                   ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-                  : 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-dark-muted border-stone-200 dark:border-dark-border'
               }`}
-              title={isOnlineDb ? "Connected to live Supabase PostgreSQL" : "Running in Zero-Config Demo Mode"}
+              title={isOnlineDb ? "Connected to live Supabase PostgreSQL" : "Connected to Private Browser Storage"}
             >
               <Database className="w-3.5 h-3.5" />
-              <span>{isOnlineDb ? 'Supabase Connected' : 'Offline / Demo Mode'}</span>
+              <span>{isOnlineDb ? 'Supabase Live' : 'Storage Active'}</span>
             </div>
 
             <LanguageSelector />
 
-            <div className="w-9 h-9 rounded-full bg-eco-900 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-              {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-            </div>
+            {user?.user_metadata?.avatar_url ? (
+              <div className="w-9 h-9 rounded-full overflow-hidden border border-eco-300 dark:border-dark-border shadow-sm shrink-0">
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt={user?.user_metadata?.full_name || 'Citizen'}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-eco-900 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+                {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+              </div>
+            )}
           </div>
         </header>
 
