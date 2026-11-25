@@ -218,4 +218,10 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
                 </div>
               )}
             </button>
-      
+          </div>
+
+        </div>
+      </aside>
+    </>
+  );
+}

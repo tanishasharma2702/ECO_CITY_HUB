@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { Leaf, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Leaf, Mail, Lock, AlertCircle, Sparkles } from 'lucide-react';
 
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn } = useAuth();
+  const { signIn, signInDemo } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,6 +34,19 @@ export default function Login() {
       setError(authError.message || t('auth.invalidCredentials', 'Invalid credentials. Please try again.'));
     } else {
       navigate(from, { replace: true });
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setError('');
+    setLoading(true);
+    const { error: authError } = await signInDemo();
+    setLoading(false);
+
+    if (authError) {
+      setError(authError.message || t('auth.demoLoginFailed', 'Failed to launch demo account.'));
+    } else {
+      navigate('/dashboard', { replace: true });
     }
   };
 
@@ -112,6 +125,28 @@ export default function Login() {
               {loading ? t('common.loading', 'Signing in...') : t('auth.loginBtn', 'Sign In')}
             </button>
           </form>
+
+          {/* Demo Account Access Button */}
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-eco-200 dark:border-dark-border" />
+            </div>
+            <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+              <span className="bg-white dark:bg-dark-card px-3 text-stone-400 font-semibold">
+                {t('auth.orInstantAccess', 'Instant Access')}
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="w-full py-3 px-4 rounded-xl font-bold text-sm text-eco-950 dark:text-dark-text bg-gradient-to-r from-amber-100 to-eco-100 hover:from-amber-200 hover:to-eco-200 dark:from-stone-800 dark:to-stone-700 dark:hover:from-stone-700 dark:hover:to-stone-600 border border-amber-300/80 dark:border-amber-800/40 transition-all shadow-sm hover:shadow flex items-center justify-center gap-2 group disabled:opacity-50"
+          >
+            <Sparkles className="w-4 h-4 text-amber-700 dark:text-amber-400 group-hover:rotate-12 transition-transform" />
+            <span>{t('auth.exploreDemoBtn', 'Explore Demo Account')}</span>
+          </button>
 
           <div className="text-center text-xs text-stone-600 dark:text-dark-muted pt-2 border-t border-eco-100 dark:border-dark-border">
             {t('auth.noAccount', "Don't have an account?")}{' '}

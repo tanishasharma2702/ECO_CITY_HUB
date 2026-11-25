@@ -105,7 +105,7 @@ export default function ProfilePictureSelector({
       const dataUrl = reader.result;
       setCurrentPreview(dataUrl);
       setSelectedAvatarId('');
-      onChange(dataUrl);
+      onChange(dataUrl, file);
     };
     reader.readAsDataURL(file);
   };

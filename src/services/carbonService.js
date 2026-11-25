@@ -1,7 +1,8 @@
 // Deterministic Carbon Footprint Calculations & Persistence
 
-import { supabase } from './supabase';
-import { awardGreenPoints } from './greenScoreService';
+import { supabase, mockSupabase } from './supabase.js';
+import { awardGreenPoints } from './greenScoreService.js';
+import { isDemoUser, initDemoData } from './demoService.js';
 
 // Documented standard emission factors (kg CO2e per unit)
 export const EMISSION_FACTORS = {
@@ -91,7 +92,8 @@ export async function saveCarbonRecord(userId, recordData, aiRecommendations) {
       created_at: new Date().toISOString()
     };
 
-    const { data, error } = await supabase.from('carbon_records').insert(newRecord);
+    const client = isDemoUser(userId) ? mockSupabase : supabase;
+    const { data, error } = await client.from('carbon_records').insert(newRecord);
     if (error) throw error;
 
     // Award Green Points for conducting and saving carbon footprint assessment
@@ -109,6 +111,18 @@ export async function saveCarbonRecord(userId, recordData, aiRecommendations) {
  */
 export async function getCarbonHistory(userId) {
   try {
+    if (isDemoUser(userId)) {
+      initDemoData(userId);
+      const { data, error } = await mockSupabase
+        .from('carbon_records')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return { success: true, data: data || [] };
+    }
+
     const { data, error } = await supabase
       .from('carbon_records')
       .select('*')
@@ -119,6 +133,10 @@ export async function getCarbonHistory(userId) {
     return { success: true, data: data || [] };
   } catch (err) {
     console.error('Error fetching carbon history:', err);
+    if (isDemoUser(userId)) {
+      const raw = JSON.parse(localStorage.getItem('ecocity_table_carbon_records') || '[]');
+      return { success: true, data: raw.filter(r => r.user_id === userId) };
+    }
     return { success: false, data: [] };
   }
 }

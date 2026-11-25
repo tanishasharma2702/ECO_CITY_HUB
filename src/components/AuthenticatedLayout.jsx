@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import LanguageSelector from './LanguageSelector';
-import { Menu, Database, ShieldCheck, User } from 'lucide-react';
+import { Menu, Database, ShieldCheck, User, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../services/supabase';
 
 export default function AuthenticatedLayout() {
+  const { t } = useTranslation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { user } = useAuth();
   const isOnlineDb = isSupabaseConfigured();
@@ -47,8 +49,20 @@ export default function AuthenticatedLayout() {
             </div>
           </div>
 
-          {/* Right Header items: DB status + Language Selector + User avatar */}
-          <div className="flex items-center gap-3">
+          {/* Right Header items: Demo badge + DB status + Language Selector + User avatar */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Demo Account Indicator */}
+            {user?.user_metadata?.is_demo && (
+              <div
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-sm"
+                title={t('auth.demoBadgeTitle', 'Demo Account: Full access to Carbon, Civic, and Plant modules')}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="hidden xs:inline">{t('auth.demoBadge', 'Demo Account')}</span>
+                <span className="xs:hidden">Demo</span>
+              </div>
+            )}
+
             {/* Database indicator */}
             <div
               className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${

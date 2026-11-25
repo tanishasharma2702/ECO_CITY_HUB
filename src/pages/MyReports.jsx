@@ -8,6 +8,7 @@ import {
   REPORT_STATUSES
 } from '../services/civicService';
 import { awardGreenPoints } from '../services/greenScoreService';
+import SecureMediaViewer from '../components/SecureMediaViewer';
 import {
   ClipboardList,
   AlertTriangle,
@@ -21,8 +22,21 @@ import {
   ExternalLink,
   Plus,
   Filter,
-  Check
+  Check,
+  Map as MapIcon,
+  LayoutGrid
 } from 'lucide-react';
+
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+
+// Fix default Leaflet icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 export default function MyReports() {
   const { t } = useTranslation();
@@ -31,6 +45,7 @@ export default function MyReports() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All');
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'map'
   const [selectedReport, setSelectedReport] = useState(null);
   const [copied, setCopied] = useState(false);
 
@@ -120,35 +135,121 @@ export default function MyReports() {
         </Link>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-eco-200 dark:border-dark-border">
-        {['All', ...REPORT_STATUSES].map((tab) => {
-          const tabLabelMap = {
-            'All': t('reports.tabAll', 'All'),
-            'Draft': t('reports.tabDraft', 'Draft'),
-            'Submitted': t('reports.tabSubmitted', 'Submitted'),
-            'Under Review': t('reports.tabUnderReview', 'Under Review'),
-            'Resolved': t('reports.tabResolved', 'Resolved')
-          };
-          return (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                activeTab === tab
-                  ? 'bg-eco-900 text-white shadow-sm'
-                  : 'bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border text-stone-700 dark:text-dark-muted hover:bg-eco-100'
-              }`}
-            >
-              {tabLabelMap[tab] || tab} {tab === 'All' ? `(${reports.length})` : `(${reports.filter(r => r.status === tab).length})`}
-            </button>
-          );
-        })}
+      {/* Filter Tabs & View Mode Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-eco-200 dark:border-dark-border pb-3">
+        <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0">
+          {['All', ...REPORT_STATUSES].map((tab) => {
+            const tabLabelMap = {
+              'All': t('reports.tabAll', 'All'),
+              'Draft': t('reports.tabDraft', 'Draft'),
+              'Submitted': t('reports.tabSubmitted', 'Submitted'),
+              'Under Review': t('reports.tabUnderReview', 'Under Review'),
+              'Resolved': t('reports.tabResolved', 'Resolved')
+            };
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === tab
+                    ? 'bg-eco-900 text-white shadow-sm'
+                    : 'bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border text-stone-700 dark:text-dark-muted hover:bg-eco-100 dark:hover:bg-dark-bg'
+                }`}
+              >
+                {tabLabelMap[tab] || tab} {tab === 'All' ? `(${reports.length})` : `(${reports.filter(r => r.status === tab).length})`}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* View Toggle: Cards vs Map */}
+        <div className="inline-flex p-1 rounded-xl bg-eco-100 dark:bg-dark-bg border border-eco-200 dark:border-dark-border">
+          <button
+            type="button"
+            onClick={() => setViewMode('list')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === 'list'
+                ? 'bg-eco-900 text-white shadow-sm'
+                : 'text-stone-600 dark:text-dark-muted hover:text-eco-950 dark:hover:text-dark-text'
+            }`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span>{t('reports.viewList', 'Cards')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('map')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === 'map'
+                ? 'bg-eco-900 text-white shadow-sm'
+                : 'text-stone-600 dark:text-dark-muted hover:text-eco-950 dark:hover:text-dark-text'
+            }`}
+          >
+            <MapIcon className="w-3.5 h-3.5" />
+            <span>{t('reports.viewMap', 'Map View')}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Reports List */}
-      {filteredReports.length > 0 ? (
+      {/* Reports Display: Map View or Cards List */}
+      {viewMode === 'map' ? (
+        <div className="rounded-3xl bg-white dark:bg-dark-card border border-eco-200 dark:border-dark-border p-5 shadow-sm space-y-4 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between px-1">
+            <div>
+              <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
+                {t('reports.mapTitle', 'Interactive Civic Hazard Map')}
+              </h3>
+              <p className="text-xs text-stone-500 dark:text-dark-muted">
+                {t('reports.mapSubtitle', 'Locate and track all your submitted municipal reports on the city map.')}
+              </p>
+            </div>
+            <span className="text-xs font-bold text-eco-800 dark:text-eco-400 bg-eco-100 dark:bg-stone-800 px-2.5 py-1 rounded-lg">
+              {filteredReports.filter(r => r.latitude && r.longitude).length} {t('reports.pinsOnMap', 'Hazards Placed')}
+            </span>
+          </div>
+
+          <div className="h-[460px] rounded-2xl overflow-hidden border border-eco-200 dark:border-dark-border">
+            <MapContainer
+              center={
+                filteredReports.find(r => r.latitude && r.longitude)
+                  ? [Number(filteredReports.find(r => r.latitude && r.longitude).latitude), Number(filteredReports.find(r => r.latitude && r.longitude).longitude)]
+                  : [26.9124, 75.7873]
+              }
+              zoom={13}
+              className="h-full w-full"
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {filteredReports.filter(r => r.latitude && r.longitude).map((rep) => (
+                <Marker key={rep.id} position={[Number(rep.latitude), Number(rep.longitude)]}>
+                  <Popup>
+                    <div className="p-1 space-y-1.5 text-xs max-w-[220px]">
+                      <div className="flex items-center justify-between gap-1 font-mono font-bold text-eco-800">
+                        <span>{rep.id}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">{rep.priority}</span>
+                      </div>
+                      <h4 className="font-bold text-stone-900 leading-tight">{rep.title}</h4>
+                      <p className="text-[11px] text-stone-500">{rep.address || rep.city}</p>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedReport(rep)}
+                        className="w-full mt-2 py-1 px-2 rounded-lg bg-eco-900 text-white font-bold text-[10px] hover:bg-eco-950 text-center"
+                      >
+                        {t('reports.viewDetails', 'View Details')}
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+        </div>
+      ) : (
+        /* Reports Cards List */
+        filteredReports.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredReports.map((report) => {
             const prioMap = {
@@ -189,19 +290,13 @@ export default function MyReports() {
                   {/* Media Thumbnail (Photo or Video) if present */}
                   {report.image_url && (
                     <div className="rounded-xl overflow-hidden h-40 bg-black/5 dark:bg-black/30 border border-eco-100 dark:border-dark-border">
-                      {report.media_type === 'video' || report.image_url.startsWith('data:video') || /\.(mp4|webm|ogg|mov)$/i.test(report.image_url) ? (
-                        <video
-                          src={report.image_url}
-                          controls
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={report.image_url}
-                          alt={report.title}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+                      <SecureMediaViewer
+                        bucket="civic-media"
+                        src={report.image_url}
+                        alt={report.title}
+                        isVideo={report.media_type === 'video'}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
 
@@ -278,7 +373,7 @@ export default function MyReports() {
             <span>{t('reports.fileFirstBtn', 'File Your First Report (+50 pts)')}</span>
           </Link>
         </div>
-      )}
+      ))}
 
       {/* Modal / Dialog to Inspect Complaint Letter */}
       {selectedReport && (
@@ -309,19 +404,13 @@ export default function MyReports() {
               {/* Media Preview in Modal */}
               {selectedReport.image_url && (
                 <div className="rounded-2xl overflow-hidden max-h-56 bg-black/5 dark:bg-black/30 border border-eco-100 dark:border-dark-border">
-                  {selectedReport.media_type === 'video' || selectedReport.image_url.startsWith('data:video') || /\.(mp4|webm|ogg|mov)$/i.test(selectedReport.image_url) ? (
-                    <video
-                      src={selectedReport.image_url}
-                      controls
-                      className="w-full max-h-56 object-contain mx-auto"
-                    />
-                  ) : (
-                    <img
-                      src={selectedReport.image_url}
-                      alt={selectedReport.title}
-                      className="w-full max-h-56 object-cover"
-                    />
-                  )}
+                  <SecureMediaViewer
+                    bucket="civic-media"
+                    src={selectedReport.image_url}
+                    alt={selectedReport.title}
+                    isVideo={selectedReport.media_type === 'video'}
+                    className="w-full max-h-56 object-contain mx-auto"
+                  />
                 </div>
               )}
 

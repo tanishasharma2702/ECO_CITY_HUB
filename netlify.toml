@@ -1,3 +1,20 @@
+# =============================================================================
+# EcoCity Hub – Netlify Production Deployment Configuration
+# =============================================================================
+# Build settings:
+#   - Build command: npm run build (Vite production build)
+#   - Publish directory: dist
+#
+# Production Environment Variables to configure in Netlify Dashboard:
+#   Site configuration -> Environment variables:
+#     - VITE_SUPABASE_URL = https://<your-project-ref>.supabase.co
+#     - VITE_SUPABASE_ANON_KEY = <your-anon-public-key>
+#
+# SECURITY WARNING:
+#   Do NOT add GEMINI_API_KEY to Netlify!
+#   Gemini API keys must reside exclusively in Supabase Edge Function Secrets.
+# =============================================================================
+
 [build]
   command = "npm run build"
   publish = "dist"

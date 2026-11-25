@@ -20,6 +20,7 @@ import MyReports from './pages/MyReports';
 import GreenScore from './pages/GreenScore';
 import GreenChallenges from './pages/GreenChallenges';
 import Settings from './pages/Settings';
+import EcoCityAssistant from './components/EcoCityAssistant';
 
 function PublicLayout({ children }) {
   return (
@@ -66,6 +67,9 @@ export default function App() {
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+
+            {/* Official EcoCity Assistant AI Guide */}
+            <EcoCityAssistant />
           </BrowserRouter>
         </AuthProvider>
       </FontSizeProvider>

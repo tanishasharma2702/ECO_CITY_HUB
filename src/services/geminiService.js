@@ -1,16 +1,18 @@
 // Gemini AI Service for EcoCity Hub
-// Orchestrates calls to Supabase Edge Functions, with fallback to direct Gemini client or smart simulation.
+// SECURE ARCHITECTURE:
+// The frontend NEVER accesses or contains the Google Gemini API key.
+// All requests are routed exclusively through Supabase Edge Functions where GEMINI_API_KEY
+// is kept in server-side secret storage (Deno.env.get("GEMINI_API_KEY")).
+// If Supabase is unconfigured or unreachable, the offline deterministic fallback engine executes.
 
 import { supabase, isSupabaseConfigured } from './supabase';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-
+/**
+ * Checks whether the server-side AI pipeline is reachable.
+ * In this secure architecture, Gemini is powered exclusively through Supabase Edge Functions.
+ */
 export const isGeminiConfigured = () => {
-  return Boolean(
-    GEMINI_API_KEY &&
-    !GEMINI_API_KEY.includes('placeholder') &&
-    !GEMINI_API_KEY.includes('your_api_key')
-  );
+  return isSupabaseConfigured();
 };
 
 // =============================================================================
@@ -19,70 +21,36 @@ export const isGeminiConfigured = () => {
 export async function getCarbonRecommendations({ totalEmissions, transportEmissions, electricityEmissions, foodEmissions, details, language = 'en' }) {
   const isHindi = language === 'hi' || (typeof language === 'string' && language.startsWith('hi'));
 
-  // Step A: Attempt Supabase Edge Function if configured
+  // Step A: Secure Server-Side Call via Supabase Edge Function
   if (isSupabaseConfigured()) {
     try {
       const { data, error } = await supabase.functions.invoke('carbon-recommendations', {
         body: { totalEmissions, transportEmissions, electricityEmissions, foodEmissions, details, language: isHindi ? 'hi' : 'en' }
       });
       if (!error && data?.success && data?.data) {
-        return { success: true, data: data.data, source: 'supabase-edge-function' };
+        return {
+          success: true,
+          data: { ...data.data, isFallback: false },
+          source: 'gemini-live'
+        };
+      }
+      if (error) {
+        console.warn('Supabase Edge Function returned error:', error);
       }
     } catch (edgeErr) {
-      console.warn('Supabase Edge Function not reachable, checking direct Gemini fallback:', edgeErr);
+      console.warn('Supabase Edge Function not reachable:', edgeErr);
     }
   }
 
-  // Step B: Direct Gemini API if VITE_GEMINI_API_KEY is present
-  if (isGeminiConfigured()) {
-    try {
-      const prompt = `
-Act as an environmental scientist. Analyze this monthly carbon footprint:
-- Total: ${totalEmissions} kg CO2e / month
-- Transport: ${transportEmissions} kg CO2e
-- Electricity: ${electricityEmissions} kg CO2e
-- Food: ${foodEmissions} kg CO2e
-- Context: Car: ${details?.carKm || 0} km/wk, Bike: ${details?.bikeKm || 0} km/wk, Transit: ${details?.transitKm || 0} km/wk, Electricity: ${details?.electricityKwh || 0} kWh/mo, Diet: ${details?.dietType || 'mixed'}.
-
-Target Language: ${isHindi ? 'Hindi (Devanagari script)' : 'English'}.
-${isHindi ? 'CRITICAL: Return ALL string values entirely in fluent, grammatically correct Hindi (Devanagari script). Do not output English words.' : ''}
-
-Format strictly as JSON with this schema:
-{
-  "summary": "Clear, encouraging explanation of their current footprint",
-  "highEmissionActivities": ["Major source 1", "Major source 2"],
-  "personalizedTips": [
-    {"action": "Action name", "impact": "-25 kg CO2e/mo", "practicalStep": "Realistic habit change step"},
-    {"action": "Action name", "impact": "-15 kg CO2e/mo", "practicalStep": "Realistic habit change step"},
-    {"action": "Action name", "impact": "-10 kg CO2e/mo", "practicalStep": "Realistic habit change step"}
-  ],
-  "longTermGoal": "Inspiring 90-day milestone",
-  "greenScoreBonusTip": "Action to earn Green Score points"
-}
-Output only raw JSON.
-`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json' }
-        })
-      });
-      const resData = await res.json();
-      const rawText = resData?.candidates?.[0]?.content?.parts?.[0]?.text;
-      const parsed = JSON.parse(rawText || '{}');
-      return { success: true, data: parsed, source: 'gemini-direct' };
-    } catch (directErr) {
-      console.warn('Direct Gemini call error:', directErr);
-    }
-  }
-
-  // Step C: High-fidelity Intelligent Deterministic Fallback
+  // Step B: Offline Intelligent Fallback Engine (Zero credentials mode)
+  // Transparently marks response as simulated/fallback to never mislead users
   return {
     success: true,
     source: 'offline-smart-engine',
-    data: generateSmartCarbonFallback(totalEmissions, transportEmissions, electricityEmissions, foodEmissions, details, language)
+    data: {
+      ...generateSmartCarbonFallback(totalEmissions, transportEmissions, electricityEmissions, foodEmissions, details, language),
+      isFallback: true
+    }
   };
 }
 
@@ -218,70 +186,35 @@ function generateSmartCarbonFallback(total, transport, electricity, food, detail
 export async function analyzeCivicImage({ imageBase64, mimeType = 'image/jpeg', userNotes = '', location = {}, language = 'en' }) {
   const isHindi = language === 'hi' || (typeof language === 'string' && language.startsWith('hi'));
 
-  // Step A: Attempt Supabase Edge Function
+  // Step A: Secure Server-Side Vision Call via Supabase Edge Function
   if (isSupabaseConfigured()) {
     try {
       const { data, error } = await supabase.functions.invoke('civic-analysis', {
         body: { imageBase64, mimeType, userNotes, location, language: isHindi ? 'hi' : 'en' }
       });
       if (!error && data?.success && data?.data) {
-        return { success: true, data: data.data, source: 'supabase-edge-function' };
+        return {
+          success: true,
+          data: { ...data.data, isFallback: false },
+          source: 'gemini-live'
+        };
+      }
+      if (error) {
+        console.warn('Supabase civic-analysis Edge Function error:', error);
       }
     } catch (edgeErr) {
-      console.warn('Supabase Edge Function not reachable, checking direct Gemini fallback:', edgeErr);
+      console.warn('Supabase civic-analysis Edge Function not reachable:', edgeErr);
     }
   }
 
-  // Step B: Direct Gemini Vision API if key available
-  if (isGeminiConfigured()) {
-    try {
-      const prompt = `
-Analyze this civic issue photograph. Notes: "${userNotes}". Location: ${location.city || ''}, ${location.state || ''}, India.
-Target Language: ${isHindi ? 'Hindi (Devanagari script)' : 'English'}.
-${isHindi ? 'CRITICAL: Return ALL string fields in fluent Hindi (Devanagari script).' : ''}
-
-Format as JSON:
-{
-  "identifiedProblem": "string",
-  "suggestedCategory": "Potholes" | "Garbage accumulation" | "Water leakage" | "Broken streetlights" | "Damaged roads" | "Overflowing drains" | "Other civic problems",
-  "explanation": "string",
-  "priority": "Low" | "Medium" | "High" | "Critical",
-  "recommendedDepartment": "string",
-  "safetyHazards": ["string"],
-  "complaintTitle": "string",
-  "formalComplaintLetter": "string"
-}
-Output only raw JSON.
-`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                { inlineData: { mimeType, data: imageBase64 } }
-              ]
-            }
-          ],
-          generationConfig: { responseMimeType: 'application/json' }
-        })
-      });
-      const resData = await res.json();
-      const rawText = resData?.candidates?.[0]?.content?.parts?.[0]?.text;
-      const parsed = JSON.parse(rawText || '{}');
-      return { success: true, data: parsed, source: 'gemini-vision-direct' };
-    } catch (directErr) {
-      console.warn('Direct Gemini Vision call error:', directErr);
-    }
-  }
-
-  // Step C: High-Fidelity Smart Fallback
+  // Step B: Offline Intelligent Fallback Engine (Simulated analysis)
   return {
     success: true,
     source: 'offline-smart-vision',
-    data: generateSmartCivicFallback(userNotes, location, language)
+    data: {
+      ...generateSmartCivicFallback(userNotes, location, language),
+      isFallback: true
+    }
   };
 }
 
@@ -411,72 +344,35 @@ Registered via EcoCity Hub Civic Infrastructure Portal`;
 export async function analyzePlantImage({ imageBase64, mimeType = 'image/jpeg', notes = '', language = 'en' }) {
   const isHindi = language === 'hi' || (typeof language === 'string' && language.startsWith('hi'));
 
-  // Step A: Attempt Supabase Edge Function
+  // Step A: Secure Server-Side Vision Call via Supabase Edge Function
   if (isSupabaseConfigured()) {
     try {
       const { data, error } = await supabase.functions.invoke('plant-analysis', {
         body: { imageBase64, mimeType, notes, language: isHindi ? 'hi' : 'en' }
       });
       if (!error && data?.success && data?.data) {
-        return { success: true, data: data.data, source: 'supabase-edge-function' };
+        return {
+          success: true,
+          data: { ...data.data, isFallback: false },
+          source: 'gemini-live'
+        };
+      }
+      if (error) {
+        console.warn('Supabase plant-analysis Edge Function error:', error);
       }
     } catch (edgeErr) {
-      console.warn('Supabase Edge Function not reachable, checking direct Gemini fallback:', edgeErr);
+      console.warn('Supabase plant-analysis Edge Function not reachable:', edgeErr);
     }
   }
 
-  // Step B: Direct Gemini Vision API if key available
-  if (isGeminiConfigured()) {
-    try {
-      const prompt = `
-Analyze this plant leaf or plant photo. User notes: "${notes}".
-Target Language: ${isHindi ? 'Hindi (Devanagari script)' : 'English'}.
-${isHindi ? 'CRITICAL: Return ALL string fields in fluent, botanically accurate Hindi (Devanagari script).' : ''}
-
-Format as JSON:
-{
-  "plantName": "string",
-  "healthStatus": "Healthy" | "Mild Issue" | "Moderate Disease" | "Severe Disease",
-  "confidenceScore": number,
-  "likelyCondition": "string",
-  "visibleSymptoms": ["string"],
-  "possibleCauses": ["string"],
-  "recommendedTreatment": "string",
-  "homeCareSuggestions": ["string"],
-  "preventionTips": ["string"],
-  "safetyDisclaimer": "string"
-}
-Output only raw JSON.
-`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                { inlineData: { mimeType, data: imageBase64 } }
-              ]
-            }
-          ],
-          generationConfig: { responseMimeType: 'application/json' }
-        })
-      });
-      const resData = await res.json();
-      const rawText = resData?.candidates?.[0]?.content?.parts?.[0]?.text;
-      const parsed = JSON.parse(rawText || '{}');
-      return { success: true, data: parsed, source: 'gemini-vision-direct' };
-    } catch (directErr) {
-      console.warn('Direct Gemini Plant Vision call error:', directErr);
-    }
-  }
-
-  // Step C: High-Fidelity Smart Botanical Fallback
+  // Step B: Offline Intelligent Fallback Engine (Simulated botanical intelligence)
   return {
     success: true,
     source: 'offline-smart-botanical',
-    data: generateSmartPlantFallback(notes, language)
+    data: {
+      ...generateSmartPlantFallback(notes, language),
+      isFallback: true
+    }
   };
 }
 

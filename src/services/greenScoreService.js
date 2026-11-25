@@ -1,7 +1,8 @@
 // Green Score System & Gamification Engine
 // Calculates real scores from actual recorded database activities
 
-import { supabase } from './supabase';
+import { supabase, mockSupabase, isSupabaseConfigured } from './supabase.js';
+import { isDemoUser, initDemoData } from './demoService.js';
 
 export const ACHIEVEMENT_LEVELS = [
   { name: 'Green Beginner', minScore: 0, maxScore: 200, badge: '🌱', color: '#B07D62' },
@@ -18,6 +19,14 @@ export const BADGE_DEFINITIONS = [
   { id: 'botanical_healer', title: 'Botanical Healer', description: 'Diagnosed and treated a plant using AI care guidance', icon: 'Leaf' },
   { id: 'challenge_master', title: 'Challenge Conqueror', description: 'Completed 3 or more weekly green challenges', icon: 'Award' },
   { id: 'eco_champion', title: 'Master Ecologist', description: 'Attained Eco Champion tier or above', icon: 'Crown' }
+];
+
+export const DEFAULT_CHALLENGES = [
+  { id: 'CH-01', title: 'Zero Waste Grocery Run', description: 'Use reusable cloth bags and choose unpackaged produce during your weekly market trip.', category: 'waste', points: 50, is_active: true },
+  { id: 'CH-02', title: 'Public Transit Day', description: 'Commute using the Jaipur Metro or low-floor electric bus instead of a private car or scooter.', category: 'transport', points: 60, is_active: true },
+  { id: 'CH-03', title: 'Citizen Hazard Scout', description: 'Report an active pothole, streetlight blackout, or garbage accumulation to municipal authorities.', category: 'civic', points: 50, is_active: true },
+  { id: 'CH-04', title: 'Botanical Care Session', description: 'Inspect your house plants or garden for pests/disease and treat using organic remedies.', category: 'plants', points: 40, is_active: true },
+  { id: 'CH-05', title: 'Energy Conservation Hour', description: 'Turn off all non-essential lights and appliances during peak grid hours.', category: 'energy', points: 50, is_active: true }
 ];
 
 export function getLevelForScore(score) {
@@ -49,13 +58,19 @@ export async function calculateGreenScore(userId) {
   }
 
   try {
+    const isDemo = isDemoUser(userId);
+    if (isDemo) {
+      initDemoData(userId);
+    }
+    const client = isDemo ? mockSupabase : supabase;
+
     // 1. Fetch user records across all tables
     const [carbonRes, civicRes, plantRes, challengeRes, activityRes] = await Promise.all([
-      supabase.from('carbon_records').select('id, total_emissions, created_at').eq('user_id', userId),
-      supabase.from('civic_reports').select('id, status, created_at').eq('user_id', userId),
-      supabase.from('plant_analyses').select('id, created_at').eq('user_id', userId),
-      supabase.from('user_challenges').select('id, challenge_id, completed').eq('user_id', userId).eq('completed', true),
-      supabase.from('user_activities').select('*').eq('user_id', userId).order('created_at', { ascending: false })
+      client.from('carbon_records').select('id, total_emissions, created_at').eq('user_id', userId),
+      client.from('civic_reports').select('id, status, created_at').eq('user_id', userId),
+      client.from('plant_analyses').select('id, created_at').eq('user_id', userId),
+      client.from('user_challenges').select('id, challenge_id, completed').eq('user_id', userId).eq('completed', true),
+      client.from('user_activities').select('*').eq('user_id', userId).order('created_at', { ascending: false })
     ]);
 
     const carbonCount = carbonRes.data?.length || 0;
@@ -102,16 +117,24 @@ export async function calculateGreenScore(userId) {
     if (challengeCount >= 3) badges.push(BADGE_DEFINITIONS[4]); // Challenge Conqueror
     if (totalScore >= 1000) badges.push(BADGE_DEFINITIONS[5]); // Master Ecologist
 
-    // Persist or sync with green_scores table
-    await supabase.from('green_scores').upsert({
-      user_id: userId,
-      total_score: totalScore,
-      carbon_score: carbonPoints,
-      civic_score: civicPoints,
-      plant_score: plantPoints,
-      level_name: level.name,
-      updated_at: new Date().toISOString()
-    });
+    // Sync with green_scores: use secure server-side RPC when configured for live users, or local mock storage for demo
+    if (!isDemo && isSupabaseConfigured()) {
+      try {
+        await supabase.rpc('sync_my_green_score');
+      } catch (rpcErr) {
+        console.warn('sync_my_green_score RPC error, score will be verified by database trigger:', rpcErr);
+      }
+    } else {
+      await mockSupabase.from('green_scores').upsert({
+        user_id: userId,
+        total_score: totalScore,
+        carbon_score: carbonPoints,
+        civic_score: civicPoints,
+        plant_score: plantPoints,
+        level_name: level.name,
+        updated_at: new Date().toISOString()
+      });
+    }
 
     return {
       totalScore,
@@ -151,13 +174,22 @@ export async function calculateGreenScore(userId) {
 export async function awardGreenPoints(userId, points, activityType, description) {
   if (!userId) return;
   try {
-    await supabase.from('user_activities').insert({
-      user_id: userId,
-      activity_type: activityType,
-      description,
-      points_earned: points,
-      created_at: new Date().toISOString()
-    });
+    const isDemo = isDemoUser(userId);
+    if (!isDemo && isSupabaseConfigured()) {
+      await supabase.rpc('record_verified_activity', {
+        p_activity_type: activityType,
+        p_description: description,
+        p_points: points
+      });
+    } else {
+      await mockSupabase.from('user_activities').insert({
+        user_id: userId,
+        activity_type: activityType,
+        description,
+        points_earned: points,
+        created_at: new Date().toISOString()
+      });
+    }
   } catch (err) {
     console.error('Error logging activity points:', err);
   }
@@ -168,18 +200,35 @@ export async function awardGreenPoints(userId, points, activityType, description
  */
 export async function getChallengesWithUserState(userId) {
   try {
-    // 1. Get all active challenges
-    const { data: challenges, error: chErr } = await supabase
-      .from('green_challenges')
-      .select('*')
-      .eq('is_active', true);
+    const isDemo = isDemoUser(userId);
+    if (isDemo) {
+      initDemoData(userId);
+    }
+    const client = isDemo ? mockSupabase : supabase;
 
-    if (chErr) throw chErr;
+    // 1. Get all active challenges
+    let challenges = [];
+    try {
+      const { data: remoteChallenges, error: chErr } = await client
+        .from('green_challenges')
+        .select('*')
+        .eq('is_active', true);
+
+      if (!chErr && remoteChallenges && remoteChallenges.length > 0) {
+        challenges = remoteChallenges;
+      }
+    } catch {
+      // Fallback
+    }
+
+    if (!challenges || challenges.length === 0) {
+      challenges = DEFAULT_CHALLENGES;
+    }
 
     // 2. Get user completions
     let completedMap = {};
     if (userId) {
-      const { data: userChs } = await supabase
+      const { data: userChs } = await client
         .from('user_challenges')
         .select('challenge_id, completed')
         .eq('user_id', userId);
@@ -195,7 +244,7 @@ export async function getChallengesWithUserState(userId) {
     }));
   } catch (err) {
     console.error('Error fetching challenges:', err);
-    return [];
+    return DEFAULT_CHALLENGES.map(ch => ({ ...ch, isCompleted: false }));
   }
 }
 
@@ -205,7 +254,8 @@ export async function getChallengesWithUserState(userId) {
 export async function toggleChallenge(userId, challengeId, points = 50) {
   if (!userId) return { success: false };
   try {
-    const { data: existing } = await supabase
+    const client = isDemoUser(userId) ? mockSupabase : supabase;
+    const { data: existing } = await client
       .from('user_challenges')
       .select('*')
       .eq('user_id', userId)
@@ -215,13 +265,13 @@ export async function toggleChallenge(userId, challengeId, points = 50) {
     const newStatus = !isCurrentlyDone;
 
     if (existing && existing.length > 0) {
-      await supabase
+      await client
         .from('user_challenges')
         .update({ completed: newStatus, completed_at: newStatus ? new Date().toISOString() : null })
         .eq('user_id', userId)
         .eq('challenge_id', challengeId);
     } else {
-      await supabase
+      await client
         .from('user_challenges')
         .insert({
           user_id: userId,

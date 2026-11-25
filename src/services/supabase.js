@@ -1,21 +1,43 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Sanitize potential copy-paste prefixes and trailing slashes
+const rawSupabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || '';
+const rawAnonKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) || '';
+
+const supabaseUrl = rawSupabaseUrl
+  .replace(/^VITE_SUPABASE_URL\s*=\s*/i, '')
+  .replace(/\/rest\/v1\/?$/i, '')
+  .replace(/\/+$/, '')
+  .trim();
+
+const supabaseAnonKey = rawAnonKey
+  .replace(/^VITE_SUPABASE_ANON_KEY\s*=\s*/i, '')
+  .trim();
 
 export const isSupabaseConfigured = () => {
-  return Boolean(
-    supabaseUrl &&
-    supabaseAnonKey &&
-    !supabaseUrl.includes('placeholder') &&
-    !supabaseUrl.includes('example.com')
-  );
+  if (!supabaseUrl || !supabaseAnonKey) return false;
+  if (supabaseUrl.includes('placeholder') || supabaseUrl.includes('example.com')) return false;
+  try {
+    const parsed = new URL(supabaseUrl);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
 };
 
+// Safe initialization that never crashes the top-level bundle
+function initSupabaseClient() {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  } catch (err) {
+    console.error('Failed to initialize Supabase client:', err);
+    return null;
+  }
+}
+
 // Real Supabase Client if configured
-export const realSupabase = isSupabaseConfigured()
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+export const realSupabase = initSupabaseClient();
 
 // =============================================================================
 // Local Offline Mock Supabase Client (Zero-Configuration Fallback)
@@ -139,6 +161,11 @@ class MockSupabaseClient {
     return new MockQueryBuilder(tableName);
   }
 
+  rpc = async (fnName, params) => {
+    // In local zero-config mode, emulate RPC calls
+    return { data: { success: true }, error: null };
+  };
+
   storage = {
     from: (bucketName) => ({
       upload: async (path, file) => {
@@ -146,13 +173,16 @@ class MockSupabaseClient {
           const reader = new FileReader();
           reader.onloadend = () => {
             const dataUrl = reader.result;
-            resolve({ data: { path, publicUrl: dataUrl }, error: null });
+            resolve({ data: { path, publicUrl: dataUrl, signedUrl: dataUrl }, error: null });
           };
           reader.readAsDataURL(file);
         });
       },
       getPublicUrl: (path) => {
         return { data: { publicUrl: path } };
+      },
+      createSignedUrl: async (path, expiresIn = 3600) => {
+        return { data: { signedUrl: path }, error: null };
       }
     })
   };
@@ -245,6 +275,25 @@ class MockQueryBuilder {
     });
     this.saveItems(newItems);
     return { data: newItems, error: null };
+  }
+
+  async upsert(data, { onConflict = 'user_id' } = {}) {
+    const items = this.getItems();
+    const rows = Array.isArray(data) ? data : [data];
+    rows.forEach(row => {
+      const idx = items.findIndex(item => item[onConflict] === row[onConflict]);
+      if (idx >= 0) {
+        items[idx] = { ...items[idx], ...row, updated_at: new Date().toISOString() };
+      } else {
+        items.unshift({
+          id: row.id || 'id-' + Math.random().toString(36).substr(2, 9),
+          created_at: new Date().toISOString(),
+          ...row
+        });
+      }
+    });
+    this.saveItems(items);
+    return { data: rows, error: null };
   }
 
   async delete() {

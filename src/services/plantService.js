@@ -1,7 +1,8 @@
 // Plant Health Diagnostic History & Plant Care Services
 
-import { supabase } from './supabase';
-import { awardGreenPoints } from './greenScoreService';
+import { supabase, mockSupabase } from './supabase.js';
+import { awardGreenPoints } from './greenScoreService.js';
+import { isDemoUser, initDemoData } from './demoService.js';
 
 /**
  * Save plant diagnosis and award green points
@@ -22,7 +23,8 @@ export async function savePlantAnalysis(userId, analysisData) {
       created_at: new Date().toISOString()
     };
 
-    const { data, error } = await supabase.from('plant_analyses').insert(record);
+    const client = isDemoUser(userId) ? mockSupabase : supabase;
+    const { data, error } = await client.from('plant_analyses').insert(record);
     if (error) throw error;
 
     // Award Green Points for plant stewardship
@@ -42,6 +44,18 @@ export async function savePlantAnalysis(userId, analysisData) {
  */
 export async function getUserPlantHistory(userId) {
   try {
+    if (isDemoUser(userId)) {
+      initDemoData(userId);
+      const { data, error } = await mockSupabase
+        .from('plant_analyses')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return { success: true, data: data || [] };
+    }
+
     const { data, error } = await supabase
       .from('plant_analyses')
       .select('*')
@@ -52,6 +66,10 @@ export async function getUserPlantHistory(userId) {
     return { success: true, data: data || [] };
   } catch (err) {
     console.error('Error fetching plant history:', err);
+    if (isDemoUser(userId)) {
+      const raw = JSON.parse(localStorage.getItem('ecocity_table_plant_analyses') || '[]');
+      return { success: true, data: raw.filter(r => r.user_id === userId) };
+    }
     return { success: false, data: [] };
   }
 }

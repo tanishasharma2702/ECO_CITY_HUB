@@ -9,6 +9,7 @@ import LanguageSelector from '../components/LanguageSelector';
 import ProfilePictureSelector from '../components/ProfilePictureSelector';
 import { isSupabaseConfigured } from '../services/supabase';
 import { isGeminiConfigured } from '../services/geminiService';
+import { uploadUserMedia } from '../services/storageService';
 import {
   Settings as SettingsIcon,
   User,
@@ -38,6 +39,7 @@ export default function Settings() {
   // Profile Form State
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || '');
+  const [avatarFile, setAvatarFile] = useState(null);
   const [location, setLocation] = useState({
     country: 'India',
     state: user?.user_metadata?.state || 'Rajasthan',
@@ -66,9 +68,24 @@ export default function Settings() {
     setSavingProfile(true);
     setProfileSuccess(false);
 
+    let finalAvatarUrl = avatarUrl;
+    if (avatarFile && isSupabaseLive && user?.id) {
+      try {
+        const uploadRes = await uploadUserMedia({
+          bucket: 'avatars',
+          userId: user.id,
+          file: avatarFile,
+          customName: 'avatar'
+        });
+        finalAvatarUrl = uploadRes.url;
+      } catch (err) {
+        console.warn('Avatar upload to storage failed, using preview:', err);
+      }
+    }
+
     await updateProfile({
       full_name: fullName,
-      avatar_url: avatarUrl,
+      avatar_url: finalAvatarUrl,
       country: 'India',
       state: location.state,
       city: location.city
@@ -133,7 +150,10 @@ export default function Settings() {
           <div className="pb-4 border-b border-eco-100 dark:border-dark-border">
             <ProfilePictureSelector
               value={avatarUrl}
-              onChange={setAvatarUrl}
+              onChange={(url, file) => {
+                setAvatarUrl(url);
+                setAvatarFile(file || null);
+              }}
             />
           </div>
 
@@ -342,19 +362,19 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <Cpu className="w-4 h-4 text-eco-800 dark:text-eco-300" />
                 <span className="font-bold text-xs text-eco-950 dark:text-dark-text">
-                  {t('settings.geminiTitle', 'Gemini Vision AI')}
+                  {t('settings.geminiTitle', 'Gemini AI (Edge Functions)')}
                 </span>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                isGeminiLive ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-100 text-emerald-800'
+                isGeminiLive ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
               }`}>
-                {isGeminiLive ? t('settings.geminiLiveBadge', 'Direct API Key Active') : t('settings.geminiMockBadge', 'Edge Function & Smart Engine Active')}
+                {isGeminiLive ? t('settings.geminiLiveBadge', 'Server-Side Edge Function') : t('settings.geminiMockBadge', 'Edge Function Fallback')}
               </span>
             </div>
             <p className="text-xs text-stone-600 dark:text-dark-muted">
               {isGeminiLive
-                ? t('settings.geminiLive', 'Direct Gemini 1.5/2.0 API connection enabled.')
-                : t('settings.geminiMock', 'Runs via Supabase Edge Function with intelligent deterministic fallback.')}
+                ? t('settings.geminiLive', 'Gemini 3.8 Flash is invoked securely server-side via Supabase Edge Functions with server-side secrets.')
+                : t('settings.geminiMock', 'Offline smart engines provide automatic deterministic fallbacks when Edge Functions or API keys are unavailable.')}
             </p>
           </div>
         </div>

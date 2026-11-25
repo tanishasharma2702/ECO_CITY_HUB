@@ -21,7 +21,8 @@ import {
   AlertCircle,
   HelpCircle,
   Loader2,
-  Bike
+  Bike,
+  Info
 } from 'lucide-react';
 
 import {
@@ -57,6 +58,7 @@ export default function CarbonCalculator() {
 
   // State
   const [results, setResults] = useState(null);
+  const [timeframe, setTimeframe] = useState('monthly'); // 'daily' | 'monthly' | 'yearly'
   const [aiReport, setAiReport] = useState(null);
   const [loadingAi, setLoadingAi] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -390,8 +392,31 @@ export default function CarbonCalculator() {
                 </h2>
               </div>
 
-              {/* Save / Save state */}
-              <div className="flex items-center gap-3">
+              {/* Timeframe Analysis Toggle & Save Action */}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Daily, Monthly, Yearly Analysis Selector */}
+                <div className="inline-flex p-1 rounded-xl bg-eco-100/80 dark:bg-dark-bg border border-eco-200 dark:border-dark-border">
+                  {[
+                    { id: 'daily', label: t('carbon.viewDaily', 'Daily') },
+                    { id: 'monthly', label: t('carbon.viewMonthly', 'Monthly') },
+                    { id: 'yearly', label: t('carbon.viewYearly', 'Yearly') }
+                  ].map((tf) => (
+                    <button
+                      key={tf.id}
+                      type="button"
+                      onClick={() => setTimeframe(tf.id)}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                        timeframe === tf.id
+                          ? 'bg-eco-900 text-white shadow-sm'
+                          : 'text-stone-600 dark:text-dark-muted hover:text-eco-950 dark:hover:text-dark-text'
+                      }`}
+                    >
+                      {tf.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Save / Save state */}
                 {saveSuccess ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800">
                     <CheckCircle2 className="w-4 h-4" />
@@ -411,55 +436,71 @@ export default function CarbonCalculator() {
               </div>
             </div>
 
-            {/* Total Highlight */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div className="sm:col-span-2 p-6 rounded-2xl bg-eco-100/70 dark:bg-dark-bg border border-eco-200 dark:border-dark-border flex flex-col justify-between">
-                <div>
-                  <span className="text-xs font-semibold text-stone-600 dark:text-dark-muted">
-                    {t('carbon.totalEmissions', 'Total Estimated Emissions')}
-                  </span>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="font-display font-extrabold text-4xl text-eco-950 dark:text-dark-text">
-                      {results.totalEmissions}
+            {/* Total Highlight with Timeframe Multipliers */}
+            {(() => {
+              const tfMultiplier = timeframe === 'daily' ? (1 / 30) : timeframe === 'yearly' ? 12 : 1;
+              const tfUnit = timeframe === 'daily'
+                ? t('carbon.perDay', 'kg CO2e / day')
+                : timeframe === 'yearly'
+                ? t('carbon.perYear', 'kg CO2e / year')
+                : t('carbon.perMonth', 'kg CO2e / month');
+
+              const displayedTotal = (results.totalEmissions * tfMultiplier).toFixed(2);
+              const displayedTransport = (results.transportEmissions * tfMultiplier).toFixed(2);
+              const displayedElectricity = (results.electricityEmissions * tfMultiplier).toFixed(2);
+              const displayedFood = (results.foodEmissions * tfMultiplier).toFixed(2);
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                  <div className="sm:col-span-2 p-6 rounded-2xl bg-eco-100/70 dark:bg-dark-bg border border-eco-200 dark:border-dark-border flex flex-col justify-between">
+                    <div>
+                      <span className="text-xs font-semibold text-stone-600 dark:text-dark-muted">
+                        {t('carbon.totalEmissions', 'Total Estimated Emissions')} ({timeframe === 'daily' ? t('carbon.viewDaily', 'Daily') : timeframe === 'yearly' ? t('carbon.viewYearly', 'Yearly') : t('carbon.viewMonthly', 'Monthly')})
+                      </span>
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="font-display font-extrabold text-4xl text-eco-950 dark:text-dark-text">
+                          {displayedTotal}
+                        </span>
+                        <span className="text-xs font-bold text-eco-800 dark:text-eco-400">
+                          {tfUnit}
+                        </span>
+                      </div>
+                    </div>
+
+                    {diffPercent !== null && (
+                      <div className="pt-3 border-t border-eco-200 dark:border-dark-border mt-3 text-xs font-semibold flex items-center gap-1.5">
+                        <TrendingDown className="w-4 h-4 text-emerald-600" />
+                        <span>{t('carbon.vsPrevious', { diff: diffPercent })}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
+                    <span className="text-xs text-stone-500 font-medium">
+                      {t('carbon.transportTab', 'Transport')}
                     </span>
-                    <span className="text-xs font-bold text-eco-800 dark:text-eco-400">
-                      {t('carbon.perMonth', 'kg CO2e / month')}
+                    <p className="font-display font-bold text-xl text-eco-950 dark:text-dark-text mt-1">
+                      {displayedTransport} kg
+                    </p>
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      {t('carbon.percentOfTotal', { percent: ((results.transportEmissions / results.totalEmissions) * 100).toFixed(0) })}
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
+                    <span className="text-xs text-stone-500 font-medium">
+                      {t('carbon.electricityTab', 'Electricity')}
                     </span>
+                    <p className="font-display font-bold text-xl text-eco-950 dark:text-dark-text mt-1">
+                      {displayedElectricity} kg
+                    </p>
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      {t('carbon.percentOfTotal', { percent: ((results.electricityEmissions / results.totalEmissions) * 100).toFixed(0) })}
+                    </p>
                   </div>
                 </div>
-
-                {diffPercent !== null && (
-                  <div className="pt-3 border-t border-eco-200 dark:border-dark-border mt-3 text-xs font-semibold flex items-center gap-1.5">
-                    <TrendingDown className="w-4 h-4 text-emerald-600" />
-                    <span>{t('carbon.vsPrevious', { diff: diffPercent })}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4 rounded-2xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <span className="text-xs text-stone-500 font-medium">
-                  {t('carbon.transportTab', 'Transport')}
-                </span>
-                <p className="font-display font-bold text-xl text-eco-950 dark:text-dark-text mt-1">
-                  {results.transportEmissions} kg
-                </p>
-                <p className="text-[11px] text-stone-400 mt-0.5">
-                  {t('carbon.percentOfTotal', { percent: ((results.transportEmissions / results.totalEmissions) * 100).toFixed(0) })}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-eco-50 dark:bg-dark-bg border border-eco-200/80 dark:border-dark-border">
-                <span className="text-xs text-stone-500 font-medium">
-                  {t('carbon.electricityTab', 'Electricity')}
-                </span>
-                <p className="font-display font-bold text-xl text-eco-950 dark:text-dark-text mt-1">
-                  {results.electricityEmissions} kg
-                </p>
-                <p className="text-[11px] text-stone-400 mt-0.5">
-                  {t('carbon.percentOfTotal', { percent: ((results.electricityEmissions / results.totalEmissions) * 100).toFixed(0) })}
-                </p>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Doughnut Chart & Food breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center pt-2">
@@ -502,15 +543,37 @@ export default function CarbonCalculator() {
               </div>
             </div>
 
-            {/* Gemini AI Personalized Plan */}
+            {/* Gemini AI / Fallback Personalized Plan */}
             {aiReport && (
-              <div className="rounded-2xl bg-eco-50 dark:bg-dark-bg border border-eco-200 dark:border-dark-border p-6 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-eco-800 dark:text-eco-300" />
-                  <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
-                    {t('carbon.aiInsights', 'Gemini AI Personalized Decarbonization Plan')}
-                  </h3>
+              <div className={`rounded-2xl border p-6 space-y-4 ${
+                aiReport.isFallback
+                  ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50'
+                  : 'bg-eco-50 dark:bg-dark-bg border border-eco-200 dark:border-dark-border'
+              }`}>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-eco-200/60 dark:border-dark-border pb-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className={`w-5 h-5 ${aiReport.isFallback ? 'text-amber-700 dark:text-amber-400' : 'text-eco-800 dark:text-eco-300'}`} />
+                    <h3 className="font-bold text-base text-eco-950 dark:text-dark-text">
+                      {aiReport.isFallback
+                        ? t('carbon.offlineInsights', 'Personalized Decarbonization Plan (Offline Simulation)')
+                        : t('carbon.aiInsights', 'Gemini AI Personalized Decarbonization Plan')}
+                    </h3>
+                  </div>
+                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                    aiReport.isFallback
+                      ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700'
+                      : 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700'
+                  }`}>
+                    {aiReport.isFallback ? t('carbon.badgeFallback', 'Offline Simulation Mode (Deterministic Engine)') : t('carbon.badgeLive', 'Live Gemini 3.8 Flash AI')}
+                  </span>
                 </div>
+
+                {aiReport.isFallback && (
+                  <div className="p-3.5 rounded-xl bg-amber-100/70 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                    <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-300" />
+                    <span>{t('carbon.fallbackNotice', 'Notice: These recommendations were generated by EcoCity Hub\'s local deterministic rule engine. To receive real-time personalized plans from Gemini 3.8 Flash, deploy the Supabase Edge Function with GEMINI_API_KEY configured in secrets.')}</span>
+                  </div>
+                )}
 
                 <p className="text-sm text-stone-700 dark:text-dark-text leading-relaxed">
                   {aiReport.summary}
